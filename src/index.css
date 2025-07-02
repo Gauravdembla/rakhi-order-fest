@@ -17,16 +17,16 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 345 87% 15%;
 
-    --primary: 345 87% 55%;
+    --primary: 300 87% 55%;
     --primary-foreground: 0 0% 100%;
     
-    --rakhi-gold: 48 89% 65%;
-    --rakhi-orange: 25 95% 60%;
-    --rakhi-red: 345 87% 55%;
-    --festive-bg: 34 78% 95%;
+    --rakhi-gold: 300 70% 80%;
+    --rakhi-orange: 310 85% 70%;
+    --rakhi-red: 300 87% 55%;
+    --festive-bg: 310 40% 95%;
 
-    --secondary: 48 89% 65%;
-    --secondary-foreground: 345 87% 15%;
+    --secondary: 300 70% 80%;
+    --secondary-foreground: 300 87% 15%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
