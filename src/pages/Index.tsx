@@ -90,12 +90,12 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Main Content - 50:50 Split */}
-      <div className="flex h-[calc(100vh-80px)]">
+      {/* Main Content - Mobile: Stacked, Desktop: 50:50 Split */}
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
         
-        {/* Left Side - Product Information (50%) */}
-        <div className="w-1/2 p-6 overflow-y-auto border-r">
-          <div className="max-w-2xl">
+        {/* Product Information - Top on mobile, Left on desktop */}
+        <div className="w-full lg:w-1/2 p-4 lg:p-6 overflow-y-auto lg:border-r">
+          <div className="max-w-2xl mx-auto lg:mx-0">
             {/* Product Title */}
             <div className="mb-6">
               <h2 className="text-3xl font-bold text-foreground mb-2">
@@ -142,9 +142,9 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Right Side - Order Form (50%) */}
-        <div className="w-1/2 p-6 overflow-y-auto bg-card/50">
-          <div className="sticky top-0">
+        {/* Order Form - Bottom on mobile, Right on desktop */}
+        <div className="w-full lg:w-1/2 p-4 lg:p-6 overflow-y-auto bg-card/50">
+          <div className="lg:sticky lg:top-0">
             <Card className="shadow-xl border-2 border-primary/30">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
                 <CardTitle className="text-center text-foreground">Order Details</CardTitle>
