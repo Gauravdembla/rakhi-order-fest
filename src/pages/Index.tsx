@@ -19,11 +19,11 @@ const Index = () => {
   };
 
   const rakhiImages = [
-    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop", 
-    "https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=400&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop"
+    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1280&h=720&fit=crop",
+    "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=1280&h=720&fit=crop", 
+    "https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=1280&h=720&fit=crop",
+    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1280&h=720&fit=crop&brightness=0.8",
+    "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=1280&h=720&fit=crop&brightness=1.2"
   ];
 
   const nextImage = () => {
@@ -88,16 +88,12 @@ const Index = () => {
         {/* Left Side - Product Information (50%) */}
         <div className="w-1/2 p-6 overflow-y-auto border-r">
           <div className="max-w-2xl">
-            {/* Product Title and Price */}
+            {/* Product Title */}
             <div className="mb-6">
               <h2 className="text-3xl font-bold text-foreground mb-2">
                 Special Divine Angelic Rakhis
               </h2>
               <p className="text-muted-foreground mb-4">By Divine Creations</p>
-              <div className="text-4xl font-bold text-primary mb-2">
-                ₹199 - ₹499
-              </div>
-              <p className="text-sm text-muted-foreground">(Inclusive of all taxes)</p>
             </div>
 
             {/* Image Navigation */}
@@ -106,7 +102,7 @@ const Index = () => {
                 <img 
                   src={rakhiImages[currentImageIndex]} 
                   alt={`Divine Angelic Rakhi ${currentImageIndex + 1}`}
-                  className="w-full h-96 object-cover rounded-lg shadow-lg border-2 border-primary/20"
+                  className="w-full h-80 object-cover rounded-lg shadow-lg border-2 border-primary/20"
                 />
                 
                 {/* Navigation Arrows */}
@@ -146,15 +142,6 @@ const Index = () => {
                 <p className="text-muted-foreground leading-relaxed">
                   Connect with the Divine. Receive. Heal. Transform. Experience divine protection and blessings with our handcrafted Special Divine Angelic Rakhis.
                 </p>
-              </div>
-
-              <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
-                <h4 className="font-semibold text-foreground mb-3">✨ Features:</h4>
-                <ul className="space-y-1 text-muted-foreground text-sm">
-                  <li>• Premium quality with divine artwork</li>
-                  <li>• Blessed with sacred energy</li>
-                  <li>• Free shipping included</li>
-                </ul>
               </div>
             </div>
           </div>
