@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { Heart, Gift, Plus, Minus } from "lucide-react";
+import chakraRakhi from "@/assets/chakra-rakhi-optimized.jpg";
+import prosperityRakhi from "@/assets/prosperity-rakhi-optimized.jpg";
 
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
@@ -18,11 +20,10 @@ const Index = () => {
     return prices[quantity as keyof typeof prices] || 0;
   };
 
+  // Optimized smaller images for faster loading
   const rakhiImages = [
-    "/lovable-uploads/2c76ff5a-d797-43bc-a6c8-379c00466d0f.png",
-    "/lovable-uploads/caa9bb77-fa09-494b-b99b-9fc64bc2a3aa.png", 
-    "/lovable-uploads/4988f179-e576-41e3-aa28-6a8d99ac9a29.png",
-    "/lovable-uploads/f9ec6c91-83be-4589-835a-45de816fd0b7.png"
+    chakraRakhi,
+    prosperityRakhi
   ];
 
 
