@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Heart, Gift, ChevronLeft, ChevronRight, Plus, Minus } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import { Heart, Gift, Plus, Minus } from "lucide-react";
 
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
   const [rakhi2Quantity, setRakhi2Quantity] = useState<number>(0);
-  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const [error, setError] = useState<string>("");
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
@@ -24,14 +24,6 @@ const Index = () => {
     "/lovable-uploads/4988f179-e576-41e3-aa28-6a8d99ac9a29.png",
     "/lovable-uploads/f9ec6c91-83be-4589-835a-45de816fd0b7.png"
   ];
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % rakhiImages.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + rakhiImages.length) % rakhiImages.length);
-  };
 
 
   const validateForm = () => {
@@ -112,43 +104,24 @@ const Index = () => {
               <p className="text-muted-foreground mb-4">By Angels On Earth</p>
             </div>
 
-            {/* Image Navigation */}
+            {/* Image Carousel */}
             <div className="mb-8">
-              <div className="relative">
-                <img 
-                  src={rakhiImages[currentImageIndex]} 
-                  alt={`Divine Angelic Rakhi ${currentImageIndex + 1}`}
-                  className="w-full h-64 object-cover rounded-lg shadow-lg border-2 border-primary/20"
-                />
-                
-                {/* Navigation Arrows */}
-                <button 
-                  onClick={prevImage}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
-                >
-                  <ChevronLeft className="h-6 w-6 text-primary" />
-                </button>
-                
-                <button 
-                  onClick={nextImage}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg"
-                >
-                  <ChevronRight className="h-6 w-6 text-primary" />
-                </button>
-
-                {/* Image Indicators */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                  {rakhiImages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-3 h-3 rounded-full ${
-                        index === currentImageIndex ? 'bg-primary' : 'bg-white/50'
-                      }`}
-                    />
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {rakhiImages.map((image, index) => (
+                    <CarouselItem key={index}>
+                      <img 
+                        src={image} 
+                        alt={`Rakhi ${index + 1}`}
+                        className="w-full h-64 object-cover rounded-lg shadow-lg border-2 border-primary/20"
+                        loading="lazy"
+                      />
+                    </CarouselItem>
                   ))}
-                </div>
-              </div>
+                </CarouselContent>
+                <CarouselPrevious className="left-4" />
+                <CarouselNext className="right-4" />
+              </Carousel>
             </div>
 
             {/* Rakhi Descriptions */}
