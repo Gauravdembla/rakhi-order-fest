@@ -4,12 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
-import { Heart, Gift, Plus, Minus } from "lucide-react";
+import { Heart, Gift, Plus, Minus, ArrowRight } from "lucide-react";
 
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
   const [rakhi2Quantity, setRakhi2Quantity] = useState<number>(0);
   const [error, setError] = useState<string>("");
+  const [currentSlide, setCurrentSlide] = useState<number>(0);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
   
@@ -90,12 +91,193 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Main Content - Mobile: Stacked, Desktop: 50:50 Split */}
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
-        
-        {/* Product Information - Top on mobile, Left on desktop */}
-        <div className="w-full lg:w-1/2 p-4 lg:p-6 overflow-y-auto lg:border-r">
-          <div className="max-w-2xl mx-auto lg:mx-0">
+      {/* Mobile Carousel Layout */}
+      <div className="lg:hidden">
+        <Carousel className="w-full">
+          <CarouselContent>
+            {/* Product Information Slide */}
+            <CarouselItem>
+              <div className="p-4 min-h-[calc(100vh-80px)] flex flex-col">
+                <div className="max-w-2xl mx-auto flex-1">
+                  {/* Product Title */}
+                  <div className="mb-6">
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+                      Special Divine Angelic Rakhis
+                    </h2>
+                    <p className="text-muted-foreground mb-4">By Angels On Earth</p>
+                  </div>
+
+                  {/* Image Carousel */}
+                  <div className="mb-6">
+                    <Carousel className="w-full">
+                      <CarouselContent>
+                        {rakhiImages.map((image, index) => (
+                          <CarouselItem key={index}>
+                            <img 
+                              src={image} 
+                              alt={`Rakhi ${index + 1}`}
+                              className="w-full h-48 md:h-64 object-cover rounded-lg shadow-lg border-2 border-primary/20"
+                              loading="lazy"
+                            />
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="left-4" />
+                      <CarouselNext className="right-4" />
+                    </Carousel>
+                  </div>
+
+                  {/* Rakhi Descriptions */}
+                  <div className="space-y-4 mb-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">🌈 7 Chakra's Rakhi</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection. Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit.
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">💰 Prosperity Rakhi</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being. Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Order Here Button - Sticky at bottom */}
+                <div className="mt-auto pt-4">
+                  <Button 
+                    onClick={() => setCurrentSlide(1)}
+                    className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    Order Here <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            </CarouselItem>
+
+            {/* Order Form Slide */}
+            <CarouselItem>
+              <div className="p-4 min-h-[calc(100vh-80px)]">
+                <Card className="shadow-xl border-2 border-primary/30">
+                  <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
+                    <CardTitle className="text-center text-foreground">Order Details</CardTitle>
+                    <CardDescription className="text-center">
+                      Complete your purchase by providing your order details
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-6">
+                    
+                    {/* Rakhi 1 */}
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => adjustQuantity("rakhi1", -1)}
+                          disabled={rakhi1Quantity === 0}
+                          className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                        >
+                          <Minus className="h-4 w-4 text-primary" />
+                        </button>
+                        <span className="w-8 text-center font-semibold">{rakhi1Quantity}</span>
+                        <button 
+                          onClick={() => adjustQuantity("rakhi1", 1)}
+                          disabled={rakhi1Quantity === 4 || totalQuantity === 4}
+                          className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                        >
+                          <Plus className="h-4 w-4 text-primary" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Rakhi 2 */}
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <span className="font-medium text-foreground">Prosperity Rakhi</span>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => adjustQuantity("rakhi2", -1)}
+                          disabled={rakhi2Quantity === 0}
+                          className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                        >
+                          <Minus className="h-4 w-4 text-primary" />
+                        </button>
+                        <span className="w-8 text-center font-semibold">{rakhi2Quantity}</span>
+                        <button 
+                          onClick={() => adjustQuantity("rakhi2", 1)}
+                          disabled={rakhi2Quantity === 4 || totalQuantity === 4}
+                          className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                        >
+                          <Plus className="h-4 w-4 text-primary" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Order Summary */}
+                    <div className="bg-muted/30 p-4 rounded-lg space-y-2">
+                      <h4 className="font-medium text-foreground">Order Summary</h4>
+                      <div className="flex justify-between text-sm">
+                        <span>Rakhis ({totalQuantity})</span>
+                        <span>₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
+                      </div>
+                      <div className="border-t pt-2">
+                        <div className="flex justify-between font-semibold">
+                          <span>Amount to be paid:</span>
+                          <span className="text-primary">₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
+                        </div>
+                      </div>
+                      {totalQuantity > 0 && (
+                        <div className="text-center mt-2">
+                          <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                            🚚 Shipping Charges Included
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Error Message */}
+                    {error && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+
+                    {/* Buy Button */}
+                    <Button 
+                      onClick={handleBuyNow}
+                      disabled={totalQuantity < 1 || totalQuantity > 4}
+                      className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
+                    >
+                      Proceed to pay ₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}
+                    </Button>
+
+                    {/* Back Button */}
+                    <Button 
+                      onClick={() => setCurrentSlide(0)}
+                      variant="outline"
+                      className="w-full h-10 text-sm font-medium"
+                    >
+                      ← Back to Product Details
+                    </Button>
+
+                    {/* Info Message */}
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                        Maximum 4 Rakhis per order
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CarouselItem>
+          </CarouselContent>
+        </Carousel>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex min-h-[calc(100vh-80px)]">
+        {/* Product Information - Left on desktop */}
+        <div className="w-1/2 p-6 overflow-y-auto border-r">
+          <div className="max-w-2xl">
             {/* Product Title */}
             <div className="mb-6">
               <h2 className="text-3xl font-bold text-foreground mb-2">
@@ -142,9 +324,9 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Order Form - Bottom on mobile, Right on desktop */}
-        <div className="w-full lg:w-1/2 p-4 lg:p-6 overflow-y-auto bg-card/50">
-          <div className="lg:sticky lg:top-0">
+        {/* Order Form - Right on desktop */}
+        <div className="w-1/2 p-6 overflow-y-auto bg-card/50">
+          <div className="sticky top-0">
             <Card className="shadow-xl border-2 border-primary/30">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
                 <CardTitle className="text-center text-foreground">Order Details</CardTitle>
