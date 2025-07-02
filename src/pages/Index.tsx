@@ -151,12 +151,18 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Simple Description */}
-            <div className="space-y-4">
+            {/* Rakhi Descriptions */}
+            <div className="space-y-6">
               <div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">🕉️ Angels on Earth Rakhi Collection</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-3">🌈 7 Chakra's Rakhi</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Connect with the Divine. Receive. Heal. Transform. Experience divine protection and blessings with our handcrafted Special Divine Angelic Rakhis.
+                  Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection. Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit. A sacred thread that radiates positivity and peace.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-foreground mb-3">💰 Prosperity Rakhi</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being. Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
                 </p>
               </div>
             </div>
