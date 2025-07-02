@@ -93,7 +93,7 @@ const Index = () => {
               <h2 className="text-3xl font-bold text-foreground mb-2">
                 Special Divine Angelic Rakhis
               </h2>
-              <p className="text-muted-foreground mb-4">By Divine Creations</p>
+              <p className="text-muted-foreground mb-4">By Angels On Earth</p>
             </div>
 
             {/* Image Navigation */}
@@ -102,7 +102,7 @@ const Index = () => {
                 <img 
                   src={rakhiImages[currentImageIndex]} 
                   alt={`Divine Angelic Rakhi ${currentImageIndex + 1}`}
-                  className="w-full h-80 object-cover rounded-lg shadow-lg border-2 border-primary/20"
+                  className="w-full h-64 object-cover rounded-lg shadow-lg border-2 border-primary/20"
                 />
                 
                 {/* Navigation Arrows */}
@@ -161,7 +161,7 @@ const Index = () => {
                 
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <span className="font-medium text-foreground">Divine Angelic Rakhi 1</span>
+                  <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={() => adjustQuantity("rakhi1", -1)}
@@ -183,7 +183,7 @@ const Index = () => {
 
                 {/* Rakhi 2 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <span className="font-medium text-foreground">Divine Angelic Rakhi 2</span>
+                  <span className="font-medium text-foreground">Prosperity Rakhi</span>
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={() => adjustQuantity("rakhi2", -1)}
@@ -207,7 +207,7 @@ const Index = () => {
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
                   <h4 className="font-medium text-foreground">Order Summary</h4>
                   <div className="flex justify-between text-sm">
-                    <span>Divine Angelic Rakhis ({totalQuantity})</span>
+                    <span>Rakhis ({totalQuantity})</span>
                     <span>₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
                   </div>
                   <div className="border-t pt-2">
