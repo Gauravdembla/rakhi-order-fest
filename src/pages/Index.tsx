@@ -89,158 +89,255 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="text-center py-8 px-4">
-        <div className="flex justify-center items-center gap-2 mb-4">
-          <Heart className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground">Raksha Bandhan</h1>
-          <Gift className="h-8 w-8 text-secondary" />
+      <div className="border-b bg-card p-4">
+        <div className="flex items-center gap-2 justify-center">
+          <Heart className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold text-foreground">Raksha Bandhan Special</h1>
+          <Gift className="h-6 w-6 text-secondary" />
         </div>
-        <p className="text-muted-foreground">Order beautiful rakhis for your loved ones</p>
       </div>
 
-      {/* Main Content - Two Column Layout */}
-      <div className="container mx-auto px-4 pb-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
-          {/* Left Side - Order Form */}
-          <div className="order-2 lg:order-1">
-            <Card className="shadow-lg border-2 border-primary/20">
-              <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-t-lg">
-                <CardTitle className="text-center text-foreground">Order Rakhis</CardTitle>
+      {/* Main Content - Fixed Side by Side */}
+      <div className="flex h-[calc(100vh-80px)]">
+        
+        {/* Left Side - Product Information and Images */}
+        <div className="flex-1 p-6 overflow-y-auto border-r">
+          <div className="max-w-2xl">
+            {/* Product Title and Price */}
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold text-foreground mb-2">
+                Special Divine Angelic Rakhis
+              </h2>
+              <p className="text-muted-foreground mb-4">By Divine Creations</p>
+              <div className="text-4xl font-bold text-primary mb-2">
+                ₹199 - ₹499
+              </div>
+              <p className="text-sm text-muted-foreground">(Inclusive of all taxes)</p>
+            </div>
+
+            {/* Image Scroller */}
+            <div className="mb-8">
+              <div className="relative">
+                <div className="overflow-x-auto">
+                  <div className="flex gap-4 pb-4">
+                    {rakhiImages.map((image, index) => (
+                      <div key={index} className="flex-shrink-0">
+                        <img 
+                          src={image} 
+                          alt={`Divine Angelic Rakhi ${index + 1}`}
+                          className="w-80 h-60 object-cover rounded-lg shadow-lg border-2 border-primary/20"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Product Description */}
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-xl font-semibold text-foreground mb-3">🕉️ Angels on Earth Rakhi Collection</h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  Connect with the Divine. Receive. Heal. Transform.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  Step into a sacred journey of light, love, and guidance with the Angels on Earth Special Divine Angelic Rakhis. 
+                  This magical collection is a powerful portal to help you connect with angels, archangels, gods and goddesses, 
+                  ascended masters, spirit animals, and elemental beings who walk with you on Earth to guide, heal, and uplift you.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-muted-foreground leading-relaxed">
+                  Each rakhi has been divinely channeled and vibrationally crafted to offer you clear, loving guidance for any area of 
+                  your life—be it relationships, health, purpose, or prosperity. Whether you're a beginner or a seasoned seeker, these 
+                  rakhis will open the doorway to higher wisdom, healing energies, and spiritual transformation.
+                </p>
+              </div>
+
+              {/* What's Inside */}
+              <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
+                <h4 className="font-semibold text-foreground mb-3">✨ What's Inside:</h4>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li>• Premium quality rakhis with stunning divine artwork</li>
+                  <li>• Beautifully crafted designs with sacred symbols</li>
+                  <li>• Multiple color combinations: Red & Gold, Pink & Silver, Blue & Gold, Orange & Silver, Purple & Gold</li>
+                  <li>• Sacred fragrances: Rose, Sandalwood, Jasmine, Lavender, Vanilla</li>
+                  <li>• Easy-to-follow instructions for spiritual connection</li>
+                </ul>
+              </div>
+
+              {/* Why You'll Love It */}
+              <div className="bg-secondary/10 p-4 rounded-lg border border-secondary/20">
+                <h4 className="font-semibold text-foreground mb-3">🌟 Why You'll Love It:</h4>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li>• Receive messages from your spirit team, anytime</li>
+                  <li>• Get clarity and direction during life's turning points</li>
+                  <li>• Activate your intuitive powers and inner knowing</li>
+                  <li>• Elevate your vibration and align with your divine path</li>
+                  <li>• Experience divine protection and blessings</li>
+                </ul>
+              </div>
+
+              <div className="border-l-4 border-primary pl-4">
+                <p className="text-muted-foreground italic">
+                  "If you've been asking for signs, guidance, or miracles... this rakhi collection is your answer. 
+                  Let your angels speak. Let your soul remember. This is more than a rakhi—it's a divine experience."
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Order Form */}
+        <div className="w-96 p-6 overflow-y-auto bg-card/50">
+          <div className="sticky top-0">
+            <Card className="shadow-xl border-2 border-primary/30">
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
+                <CardTitle className="text-center text-foreground">Order Details</CardTitle>
                 <CardDescription className="text-center">
-                  Select your Special Divine Angelic Rakhis
+                  Complete your purchase by providing your order details
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
                 {/* Rakhi 1 Selection */}
                 <div className="space-y-4">
-                  <Label className="text-foreground font-medium text-lg">
-                    Special Divine Angelic Rakhi 1
+                  <Label className="text-foreground font-medium text-base">
+                    Divine Angelic Rakhi 1
                   </Label>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="rakhi1-qty" className="text-sm text-muted-foreground">Quantity</Label>
-                    <Select value={rakhi1Quantity.toString()} onValueChange={(value) => handleQuantityChange("rakhi1", value)}>
-                      <SelectTrigger id="rakhi1-qty" className="border-2 focus:border-primary">
-                        <SelectValue placeholder="Choose quantity" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[0, 1, 2, 3, 4].map((num) => (
-                          <SelectItem key={num} value={num.toString()}>
-                            {num === 0 ? "None" : `${num} Rakhi${num > 1 ? "s" : ""}`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="rakhi1-qty" className="text-sm text-muted-foreground">Quantity</Label>
+                      <Select value={rakhi1Quantity.toString()} onValueChange={(value) => handleQuantityChange("rakhi1", value)}>
+                        <SelectTrigger id="rakhi1-qty" className="border-2 focus:border-primary">
+                          <SelectValue placeholder="Choose quantity" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[0, 1, 2, 3, 4].map((num) => (
+                            <SelectItem key={num} value={num.toString()}>
+                              {num === 0 ? "None" : `${num} Rakhi${num > 1 ? "s" : ""}`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {rakhi1Quantity > 0 && (
+                      <>
+                        <div>
+                          <Label htmlFor="rakhi1-color" className="text-sm text-muted-foreground">Color</Label>
+                          <Select value={rakhi1Color} onValueChange={setRakhi1Color}>
+                            <SelectTrigger id="rakhi1-color" className="border-2 focus:border-primary">
+                              <SelectValue placeholder="Choose color" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {colors.map((color) => (
+                                <SelectItem key={color} value={color}>{color}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="rakhi1-flavor" className="text-sm text-muted-foreground">Flavor</Label>
+                          <Select value={rakhi1Flavor} onValueChange={setRakhi1Flavor}>
+                            <SelectTrigger id="rakhi1-flavor" className="border-2 focus:border-primary">
+                              <SelectValue placeholder="Choose flavor" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {flavors.map((flavor) => (
+                                <SelectItem key={flavor} value={flavor}>{flavor}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </>
+                    )}
                   </div>
-
-                  {rakhi1Quantity > 0 && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="rakhi1-color" className="text-sm text-muted-foreground">Color</Label>
-                        <Select value={rakhi1Color} onValueChange={setRakhi1Color}>
-                          <SelectTrigger id="rakhi1-color" className="border-2 focus:border-primary">
-                            <SelectValue placeholder="Choose color" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {colors.map((color) => (
-                              <SelectItem key={color} value={color}>{color}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="rakhi1-flavor" className="text-sm text-muted-foreground">Flavor</Label>
-                        <Select value={rakhi1Flavor} onValueChange={setRakhi1Flavor}>
-                          <SelectTrigger id="rakhi1-flavor" className="border-2 focus:border-primary">
-                            <SelectValue placeholder="Choose flavor" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {flavors.map((flavor) => (
-                              <SelectItem key={flavor} value={flavor}>{flavor}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </>
-                  )}
                 </div>
 
                 {/* Rakhi 2 Selection */}
                 <div className="space-y-4">
-                  <Label className="text-foreground font-medium text-lg">
-                    Special Divine Angelic Rakhi 2
+                  <Label className="text-foreground font-medium text-base">
+                    Divine Angelic Rakhi 2
                   </Label>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="rakhi2-qty" className="text-sm text-muted-foreground">Quantity</Label>
-                    <Select value={rakhi2Quantity.toString()} onValueChange={(value) => handleQuantityChange("rakhi2", value)}>
-                      <SelectTrigger id="rakhi2-qty" className="border-2 focus:border-primary">
-                        <SelectValue placeholder="Choose quantity" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[0, 1, 2, 3, 4].map((num) => (
-                          <SelectItem key={num} value={num.toString()}>
-                            {num === 0 ? "None" : `${num} Rakhi${num > 1 ? "s" : ""}`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="rakhi2-qty" className="text-sm text-muted-foreground">Quantity</Label>
+                      <Select value={rakhi2Quantity.toString()} onValueChange={(value) => handleQuantityChange("rakhi2", value)}>
+                        <SelectTrigger id="rakhi2-qty" className="border-2 focus:border-primary">
+                          <SelectValue placeholder="Choose quantity" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[0, 1, 2, 3, 4].map((num) => (
+                            <SelectItem key={num} value={num.toString()}>
+                              {num === 0 ? "None" : `${num} Rakhi${num > 1 ? "s" : ""}`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {rakhi2Quantity > 0 && (
+                      <>
+                        <div>
+                          <Label htmlFor="rakhi2-color" className="text-sm text-muted-foreground">Color</Label>
+                          <Select value={rakhi2Color} onValueChange={setRakhi2Color}>
+                            <SelectTrigger id="rakhi2-color" className="border-2 focus:border-primary">
+                              <SelectValue placeholder="Choose color" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {colors.map((color) => (
+                                <SelectItem key={color} value={color}>{color}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="rakhi2-flavor" className="text-sm text-muted-foreground">Flavor</Label>
+                          <Select value={rakhi2Flavor} onValueChange={setRakhi2Flavor}>
+                            <SelectTrigger id="rakhi2-flavor" className="border-2 focus:border-primary">
+                              <SelectValue placeholder="Choose flavor" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {flavors.map((flavor) => (
+                                <SelectItem key={flavor} value={flavor}>{flavor}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </>
+                    )}
                   </div>
-
-                  {rakhi2Quantity > 0 && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="rakhi2-color" className="text-sm text-muted-foreground">Color</Label>
-                        <Select value={rakhi2Color} onValueChange={setRakhi2Color}>
-                          <SelectTrigger id="rakhi2-color" className="border-2 focus:border-primary">
-                            <SelectValue placeholder="Choose color" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {colors.map((color) => (
-                              <SelectItem key={color} value={color}>{color}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="rakhi2-flavor" className="text-sm text-muted-foreground">Flavor</Label>
-                        <Select value={rakhi2Flavor} onValueChange={setRakhi2Flavor}>
-                          <SelectTrigger id="rakhi2-flavor" className="border-2 focus:border-primary">
-                            <SelectValue placeholder="Choose flavor" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {flavors.map((flavor) => (
-                              <SelectItem key={flavor} value={flavor}>{flavor}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </>
-                  )}
                 </div>
 
-                {/* Total and Pricing Display */}
-                <div className="bg-secondary/20 p-4 rounded-lg border border-secondary/30 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium text-foreground">Total Rakhis:</span>
-                    <span className="text-2xl font-bold text-primary">{totalQuantity}</span>
+                {/* Service Summary */}
+                <div className="bg-muted/30 p-4 rounded-lg space-y-2">
+                  <h4 className="font-medium text-foreground">Service</h4>
+                  <div className="flex justify-between text-sm">
+                    <span>Divine Angelic Rakhis</span>
+                    <span>₹{totalQuantity > 0 ? getPricing(totalQuantity) - 50 : 0}</span>
                   </div>
-                  
+                  <div className="flex justify-between text-sm">
+                    <span>GST</span>
+                    <span>₹{totalQuantity > 0 ? 50 : 0}</span>
+                  </div>
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between font-semibold">
+                      <span>Amount to be paid:</span>
+                      <span className="text-primary">₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
+                    </div>
+                  </div>
                   {totalQuantity > 0 && (
-                    <>
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium text-foreground">Price:</span>
-                        <span className="text-2xl font-bold text-primary">₹{getPricing(totalQuantity)}</span>
-                      </div>
-                      <div className="text-center">
-                        <span className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                          🚚 Shipping Charges Included
-                        </span>
-                      </div>
-                    </>
+                    <div className="text-center mt-2">
+                      <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                        🚚 Shipping Charges Included
+                      </span>
+                    </div>
                   )}
                 </div>
 
@@ -257,76 +354,19 @@ const Index = () => {
                   disabled={totalQuantity < 1 || totalQuantity > 4}
                   className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                 >
-                  Buy Now {totalQuantity > 0 && `- ₹${getPricing(totalQuantity)}`}
+                  Proceed to pay ₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}
                 </Button>
 
                 {/* Info Message */}
                 <div className="text-center">
-                  <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-                    Each order can include a maximum of 4 Rakhis in total.
+                  <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                    Maximum 4 Rakhis per order
                   </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Side - Rakhi Images and Description */}
-          <div className="order-1 lg:order-2">
-            {/* Scrollable Image Gallery */}
-            <div className="mb-6">
-              <div className="h-80 overflow-y-auto rounded-lg border-2 border-primary/20 p-4 bg-card">
-                <div className="grid grid-cols-2 gap-4">
-                  {rakhiImages.map((image, index) => (
-                    <div key={index} className="relative group">
-                      <img 
-                        src={image} 
-                        alt={`Special Divine Angelic Rakhi ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow"
-                      />
-                      <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                        <span className="text-primary font-semibold text-sm">Divine Rakhi</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Heading and Description */}
-            <Card className="border-2 border-primary/20">
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-center text-foreground mb-4">
-                  Special Divine Angelic Rakhis
-                </h2>
-                <div className="space-y-4 text-muted-foreground">
-                  <p className="leading-relaxed">
-                    Experience the divine bond of sibling love with our handcrafted Special Divine Angelic Rakhis. Each rakhi is blessed with sacred fragrances and adorned with celestial colors that symbolize protection, love, and prosperity.
-                  </p>
-                  <p className="leading-relaxed">
-                    Our collection features traditional designs infused with modern elegance, available in beautiful color combinations like Red & Gold, Pink & Silver, and more. Each rakhi comes with enchanting flavors including Rose, Sandalwood, Jasmine, Lavender, and Vanilla.
-                  </p>
-                  <div className="bg-primary/10 p-4 rounded-lg">
-                    <h3 className="font-semibold text-foreground mb-2">✨ Special Features:</h3>
-                    <ul className="space-y-1 text-sm">
-                      <li>• Handcrafted with love and devotion</li>
-                      <li>• Blessed with sacred fragrances</li>
-                      <li>• Premium quality materials</li>
-                      <li>• Multiple color and flavor options</li>
-                      <li>• Free shipping across India</li>
-                    </ul>
-                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
-      </div>
-
-      {/* Decorative Footer */}
-      <div className="text-center pb-6">
-        <p className="text-sm text-muted-foreground">
-          ✨ Strengthen bonds with traditional divine rakhis ✨
-        </p>
       </div>
     </div>
   );
