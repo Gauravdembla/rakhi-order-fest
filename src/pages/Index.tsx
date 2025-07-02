@@ -5,8 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { Heart, Gift, Plus, Minus } from "lucide-react";
-import chakraRakhi from "@/assets/chakra-rakhi-optimized.jpg";
-import prosperityRakhi from "@/assets/prosperity-rakhi-optimized.jpg";
 
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
@@ -20,10 +18,11 @@ const Index = () => {
     return prices[quantity as keyof typeof prices] || 0;
   };
 
-  // Optimized smaller images for faster loading
   const rakhiImages = [
-    chakraRakhi,
-    prosperityRakhi
+    "/lovable-uploads/2c76ff5a-d797-43bc-a6c8-379c00466d0f.png",
+    "/lovable-uploads/caa9bb77-fa09-494b-b99b-9fc64bc2a3aa.png", 
+    "/lovable-uploads/4988f179-e576-41e3-aa28-6a8d99ac9a29.png",
+    "/lovable-uploads/f9ec6c91-83be-4589-835a-45de816fd0b7.png"
   ];
 
 
@@ -91,22 +90,22 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Main Content - Responsive Layout */}
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
+      {/* Main Content - 50:50 Split */}
+      <div className="flex h-[calc(100vh-80px)]">
         
-        {/* Left Side - Product Information */}
-        <div className="w-full lg:w-1/2 p-4 lg:p-6 overflow-y-auto lg:border-r">
-          <div className="max-w-2xl mx-auto lg:mx-0">
+        {/* Left Side - Product Information (50%) */}
+        <div className="w-1/2 p-6 overflow-y-auto border-r">
+          <div className="max-w-2xl">
             {/* Product Title */}
-            <div className="mb-4 lg:mb-6">
-              <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold text-foreground mb-2">
                 Special Divine Angelic Rakhis
               </h2>
               <p className="text-muted-foreground mb-4">By Angels On Earth</p>
             </div>
 
             {/* Image Carousel */}
-            <div className="mb-6 lg:mb-8">
+            <div className="mb-8">
               <Carousel className="w-full">
                 <CarouselContent>
                   {rakhiImages.map((image, index) => (
@@ -114,28 +113,28 @@ const Index = () => {
                       <img 
                         src={image} 
                         alt={`Rakhi ${index + 1}`}
-                        className="w-full h-48 lg:h-64 object-cover rounded-lg shadow-lg border-2 border-primary/20"
+                        className="w-full h-64 object-cover rounded-lg shadow-lg border-2 border-primary/20"
                         loading="lazy"
                       />
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-2 lg:left-4" />
-                <CarouselNext className="right-2 lg:right-4" />
+                <CarouselPrevious className="left-4" />
+                <CarouselNext className="right-4" />
               </Carousel>
             </div>
 
             {/* Rakhi Descriptions */}
-            <div className="space-y-4 lg:space-y-6">
+            <div className="space-y-6">
               <div>
-                <h3 className="text-lg lg:text-xl font-semibold text-foreground mb-2 lg:mb-3">🌈 7 Chakra's Rakhi</h3>
-                <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
+                <h3 className="text-xl font-semibold text-foreground mb-3">🌈 7 Chakra's Rakhi</h3>
+                <p className="text-muted-foreground leading-relaxed">
                   Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection. Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit. A sacred thread that radiates positivity and peace.
                 </p>
               </div>
               <div>
-                <h3 className="text-lg lg:text-xl font-semibold text-foreground mb-2 lg:mb-3">💰 Prosperity Rakhi</h3>
-                <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
+                <h3 className="text-xl font-semibold text-foreground mb-3">💰 Prosperity Rakhi</h3>
+                <p className="text-muted-foreground leading-relaxed">
                   Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being. Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
                 </p>
               </div>
@@ -143,8 +142,8 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Right Side - Order Form */}
-        <div className="w-full lg:w-1/2 p-4 lg:p-6 overflow-y-auto bg-card/50">
+        {/* Right Side - Order Form (50%) */}
+        <div className="w-1/2 p-6 overflow-y-auto bg-card/50">
           <div className="sticky top-0">
             <Card className="shadow-xl border-2 border-primary/30">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
@@ -153,61 +152,61 @@ const Index = () => {
                   Complete your purchase by providing your order details
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-4 lg:p-6 space-y-4 lg:space-y-6">
+              <CardContent className="p-6 space-y-6">
                 
                 {/* Rakhi 1 */}
-                <div className="flex items-center justify-between p-3 lg:p-4 border rounded-lg">
-                  <span className="font-medium text-foreground text-sm lg:text-base">7 Chakra's Rakhi</span>
-                  <div className="flex items-center gap-2 lg:gap-3">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
+                  <div className="flex items-center gap-3">
                     <button 
                       onClick={() => adjustQuantity("rakhi1", -1)}
                       disabled={rakhi1Quantity === 0}
-                      className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
-                      <Minus className="h-3 w-3 lg:h-4 lg:w-4 text-primary" />
+                      <Minus className="h-4 w-4 text-primary" />
                     </button>
-                    <span className="w-6 lg:w-8 text-center font-semibold text-sm lg:text-base">{rakhi1Quantity}</span>
-                    <button
+                    <span className="w-8 text-center font-semibold">{rakhi1Quantity}</span>
+                    <button 
                       onClick={() => adjustQuantity("rakhi1", 1)}
                       disabled={rakhi1Quantity === 4 || totalQuantity === 4}
-                      className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
-                      <Plus className="h-3 w-3 lg:h-4 lg:w-4 text-primary" />
+                      <Plus className="h-4 w-4 text-primary" />
                     </button>
                   </div>
                 </div>
 
                 {/* Rakhi 2 */}
-                <div className="flex items-center justify-between p-3 lg:p-4 border rounded-lg">
-                  <span className="font-medium text-foreground text-sm lg:text-base">Prosperity Rakhi</span>
-                  <div className="flex items-center gap-2 lg:gap-3">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <span className="font-medium text-foreground">Prosperity Rakhi</span>
+                  <div className="flex items-center gap-3">
                     <button 
                       onClick={() => adjustQuantity("rakhi2", -1)}
                       disabled={rakhi2Quantity === 0}
-                      className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
-                      <Minus className="h-3 w-3 lg:h-4 lg:w-4 text-primary" />
+                      <Minus className="h-4 w-4 text-primary" />
                     </button>
-                    <span className="w-6 lg:w-8 text-center font-semibold text-sm lg:text-base">{rakhi2Quantity}</span>
+                    <span className="w-8 text-center font-semibold">{rakhi2Quantity}</span>
                     <button 
                       onClick={() => adjustQuantity("rakhi2", 1)}
                       disabled={rakhi2Quantity === 4 || totalQuantity === 4}
-                      className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
-                      <Plus className="h-3 w-3 lg:h-4 lg:w-4 text-primary" />
+                      <Plus className="h-4 w-4 text-primary" />
                     </button>
                   </div>
                 </div>
 
                 {/* Order Summary */}
-                <div className="bg-muted/30 p-3 lg:p-4 rounded-lg space-y-2">
-                  <h4 className="font-medium text-foreground text-sm lg:text-base">Order Summary</h4>
+                <div className="bg-muted/30 p-4 rounded-lg space-y-2">
+                  <h4 className="font-medium text-foreground">Order Summary</h4>
                   <div className="flex justify-between text-sm">
                     <span>Rakhis ({totalQuantity})</span>
                     <span>₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
                   </div>
                   <div className="border-t pt-2">
-                    <div className="flex justify-between font-semibold text-sm lg:text-base">
+                    <div className="flex justify-between font-semibold">
                       <span>Amount to be paid:</span>
                       <span className="text-primary">₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
                     </div>
@@ -224,7 +223,7 @@ const Index = () => {
                 {/* Error Message */}
                 {error && (
                   <Alert variant="destructive">
-                    <AlertDescription className="text-sm">{error}</AlertDescription>
+                    <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
 
@@ -232,7 +231,7 @@ const Index = () => {
                 <Button 
                   onClick={handleBuyNow}
                   disabled={totalQuantity < 1 || totalQuantity > 4}
-                  className="w-full h-10 lg:h-12 text-base lg:text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
+                  className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                 >
                   Proceed to pay ₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}
                 </Button>
