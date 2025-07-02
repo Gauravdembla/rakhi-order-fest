@@ -50,13 +50,30 @@ const Index = () => {
 
   const handleBuyNow = () => {
     if (validateForm()) {
-      const urls = {
-        1: "https://example.com/1rakhi",
-        2: "https://example.com/2rakhis", 
-        3: "https://example.com/3rakhis",
-        4: "https://example.com/4rakhis"
+      // Redirection mapping based on exact combinations
+      const redirectionMap: { [key: string]: string } = {
+        "1-0": "https://shree.vip/chakra-rakhi-1",
+        "0-1": "https://shree.vip/prosperity-rakhi-1",
+        "2-0": "https://shree.vip/chakra-rakhi-2",
+        "1-1": "https://shree.vip/chakra1-prosperity1",
+        "0-2": "https://shree.vip/prosperity-rakhi-2",
+        "3-0": "https://shree.vip/chakra-rakhi-3",
+        "2-1": "https://shree.vip/chakra2-prosperity1",
+        "1-2": "https://shree.vip/chakra1-prosperity2",
+        "0-3": "https://shree.vip/prosperity-rakhi-3",
+        "4-0": "https://shree.vip/chakra-rakhi-4",
+        "3-1": "https://shree.vip/chakra3-prosperity1",
+        "2-2": "https://shree.vip/chakra2-prosperity2",
+        "1-3": "https://shree.vip/chakra1-prosperity3",
+        "0-4": "https://shree.vip/prosperity-rakhi-4"
       };
-      window.location.href = urls[totalQuantity as keyof typeof urls];
+      
+      const combinationKey = `${rakhi1Quantity}-${rakhi2Quantity}`;
+      const redirectUrl = redirectionMap[combinationKey];
+      
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      }
     }
   };
 
