@@ -19,11 +19,10 @@ const Index = () => {
   };
 
   const rakhiImages = [
-    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1280&h=720&fit=crop",
-    "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=1280&h=720&fit=crop", 
-    "https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=1280&h=720&fit=crop",
-    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1280&h=720&fit=crop&brightness=0.8",
-    "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=1280&h=720&fit=crop&brightness=1.2"
+    "/lovable-uploads/2c76ff5a-d797-43bc-a6c8-379c00466d0f.png",
+    "/lovable-uploads/caa9bb77-fa09-494b-b99b-9fc64bc2a3aa.png", 
+    "/lovable-uploads/4988f179-e576-41e3-aa28-6a8d99ac9a29.png",
+    "/lovable-uploads/f9ec6c91-83be-4589-835a-45de816fd0b7.png"
   ];
 
   const nextImage = () => {
