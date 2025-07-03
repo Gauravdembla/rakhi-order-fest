@@ -15,7 +15,11 @@ const Index = () => {
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
   
   const getPricing = (quantity: number) => {
-    const prices = { 1: 199, 2: 299, 3: 399, 4: 499 };
+    const prices = { 
+      1: 199, 2: 299, 3: 399, 4: 499,
+      5: 649, 6: 749, 7: 849, 8: 949,
+      9: 1099, 10: 1199, 11: 1299, 12: 1349
+    };
     return prices[quantity as keyof typeof prices] || 0;
   };
 
