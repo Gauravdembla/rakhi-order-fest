@@ -32,8 +32,8 @@ const Index = () => {
       setError("Please select at least 1 rakhi to proceed.");
       return false;
     }
-    if (totalQuantity > 4) {
-      setError("Maximum 4 rakhis can be ordered in total.");
+    if (totalQuantity > 12) {
+      setError("Maximum 12 rakhis can be ordered in total.");
       return false;
     }
     setError("");
@@ -57,7 +57,83 @@ const Index = () => {
         "3-1": "https://shree.vip/chakra3-prosperity1",
         "2-2": "https://shree.vip/chakra2-prosperity2",
         "1-3": "https://shree.vip/chakra1-prosperity3",
-        "0-4": "https://shree.vip/prosperity-rakhi-4"
+        "0-4": "https://shree.vip/prosperity-rakhi-4",
+        "0-5": "https://shree.vip/rakhi-set-5-c0-p5",
+        "1-4": "https://shree.vip/rakhi-set-5-c1-p4",
+        "2-3": "https://shree.vip/rakhi-set-5-c2-p3",
+        "3-2": "https://shree.vip/rakhi-set-5-c3-p2",
+        "4-1": "https://shree.vip/rakhi-set-5-c4-p1",
+        "5-0": "https://shree.vip/rakhi-set-5-c5-p0",
+        "0-6": "https://shree.vip/rakhi-set-6-c0-p6",
+        "1-5": "https://shree.vip/rakhi-set-6-c1-p5",
+        "2-4": "https://shree.vip/rakhi-set-6-c2-p4",
+        "3-3": "https://shree.vip/rakhi-set-6-c3-p3",
+        "4-2": "https://shree.vip/rakhi-set-6-c4-p2",
+        "5-1": "https://shree.vip/rakhi-set-6-c5-p1",
+        "6-0": "https://shree.vip/rakhi-set-6-c6-p0",
+        "0-7": "https://shree.vip/rakhi-set-7-c0-p7",
+        "1-6": "https://shree.vip/rakhi-set-7-c1-p6",
+        "2-5": "https://shree.vip/rakhi-set-7-c2-p5",
+        "3-4": "https://shree.vip/rakhi-set-7-c3-p4",
+        "4-3": "https://shree.vip/rakhi-set-7-c4-p3",
+        "5-2": "https://shree.vip/rakhi-set-7-c5-p2",
+        "6-1": "https://shree.vip/rakhi-set-7-c6-p1",
+        "7-0": "https://shree.vip/rakhi-set-7-c7-p0",
+        "0-8": "https://shree.vip/rakhi-set-8-c0-p8",
+        "1-7": "https://shree.vip/rakhi-set-8-c1-p7",
+        "2-6": "https://shree.vip/rakhi-set-8-c2-p6",
+        "3-5": "https://shree.vip/rakhi-set-8-c3-p5",
+        "4-4": "https://shree.vip/rakhi-set-8-c4-p4",
+        "5-3": "https://shree.vip/rakhi-set-8-c5-p3",
+        "6-2": "https://shree.vip/rakhi-set-8-c6-p2",
+        "7-1": "https://shree.vip/rakhi-set-8-c7-p1",
+        "8-0": "https://shree.vip/rakhi-set-8-c8-p0",
+        "0-9": "https://shree.vip/rakhi-set-9-c0-p9",
+        "1-8": "https://shree.vip/rakhi-set-9-c1-p8",
+        "2-7": "https://shree.vip/rakhi-set-9-c2-p7",
+        "3-6": "https://shree.vip/rakhi-set-9-c3-p6",
+        "4-5": "https://shree.vip/rakhi-set-9-c4-p5",
+        "5-4": "https://shree.vip/rakhi-set-9-c5-p4",
+        "6-3": "https://shree.vip/rakhi-set-9-c6-p3",
+        "7-2": "https://shree.vip/rakhi-set-9-c7-p2",
+        "8-1": "https://shree.vip/rakhi-set-9-c8-p1",
+        "9-0": "https://shree.vip/rakhi-set-9-c9-p0",
+        "0-10": "https://shree.vip/rakhi-set-10-c0-p10",
+        "1-9": "https://shree.vip/rakhi-set-10-c1-p9",
+        "2-8": "https://shree.vip/rakhi-set-10-c2-p8",
+        "3-7": "https://shree.vip/rakhi-set-10-c3-p7",
+        "4-6": "https://shree.vip/rakhi-set-10-c4-p6",
+        "5-5": "https://shree.vip/rakhi-set-10-c5-p5",
+        "6-4": "https://shree.vip/rakhi-set-10-c6-p4",
+        "7-3": "https://shree.vip/rakhi-set-10-c7-p3",
+        "8-2": "https://shree.vip/rakhi-set-10-c8-p2",
+        "9-1": "https://shree.vip/rakhi-set-10-c9-p1",
+        "10-0": "https://shree.vip/rakhi-set-10-c10-p0",
+        "0-11": "https://shree.vip/rakhi-set-11-c0-p11",
+        "1-10": "https://shree.vip/rakhi-set-11-c1-p10",
+        "2-9": "https://shree.vip/rakhi-set-11-c2-p9",
+        "3-8": "https://shree.vip/rakhi-set-11-c3-p8",
+        "4-7": "https://shree.vip/rakhi-set-11-c4-p7",
+        "5-6": "https://shree.vip/rakhi-set-11-c5-p6",
+        "6-5": "https://shree.vip/rakhi-set-11-c6-p5",
+        "7-4": "https://shree.vip/rakhi-set-11-c7-p4",
+        "8-3": "https://shree.vip/rakhi-set-11-c8-p3",
+        "9-2": "https://shree.vip/rakhi-set-11-c9-p2",
+        "10-1": "https://shree.vip/rakhi-set-11-c10-p1",
+        "11-0": "https://shree.vip/rakhi-set-11-c11-p0",
+        "0-12": "https://shree.vip/rakhi-set-12-c0-p12",
+        "1-11": "https://shree.vip/rakhi-set-12-c1-p11",
+        "2-10": "https://shree.vip/rakhi-set-12-c2-p10",
+        "3-9": "https://shree.vip/rakhi-set-12-c3-p9",
+        "4-8": "https://shree.vip/rakhi-set-12-c4-p8",
+        "5-7": "https://shree.vip/rakhi-set-12-c5-p7",
+        "6-6": "https://shree.vip/rakhi-set-12-c6-p6",
+        "7-5": "https://shree.vip/rakhi-set-12-c7-p5",
+        "8-4": "https://shree.vip/rakhi-set-12-c8-p4",
+        "9-3": "https://shree.vip/rakhi-set-12-c9-p3",
+        "10-2": "https://shree.vip/rakhi-set-12-c10-p2",
+        "11-1": "https://shree.vip/rakhi-set-12-c11-p1",
+        "12-0": "https://shree.vip/rakhi-set-12-c12-p0"
       };
       
       const combinationKey = `${rakhi1Quantity}-${rakhi2Quantity}`;
@@ -71,10 +147,10 @@ const Index = () => {
 
   const adjustQuantity = (type: "rakhi1" | "rakhi2", change: number) => {
     if (type === "rakhi1") {
-      const newQuantity = Math.max(0, Math.min(4, rakhi1Quantity + change));
+      const newQuantity = Math.max(0, Math.min(12, rakhi1Quantity + change));
       setRakhi1Quantity(newQuantity);
     } else {
-      const newQuantity = Math.max(0, Math.min(4, rakhi2Quantity + change));
+      const newQuantity = Math.max(0, Math.min(12, rakhi2Quantity + change));
       setRakhi2Quantity(newQuantity);
     }
     if (error) setError("");
@@ -178,7 +254,7 @@ const Index = () => {
                     <span className="w-8 text-center font-semibold">{rakhi1Quantity}</span>
                     <button 
                       onClick={() => adjustQuantity("rakhi1", 1)}
-                      disabled={rakhi1Quantity === 4 || totalQuantity === 4}
+                      disabled={rakhi1Quantity === 12 || totalQuantity === 12}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
@@ -200,7 +276,7 @@ const Index = () => {
                     <span className="w-8 text-center font-semibold">{rakhi2Quantity}</span>
                     <button 
                       onClick={() => adjustQuantity("rakhi2", 1)}
-                      disabled={rakhi2Quantity === 4 || totalQuantity === 4}
+                      disabled={rakhi2Quantity === 12 || totalQuantity === 12}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
@@ -240,7 +316,7 @@ const Index = () => {
                 {/* Buy Button */}
                 <Button 
                   onClick={handleBuyNow}
-                  disabled={totalQuantity < 1 || totalQuantity > 4}
+                  disabled={totalQuantity < 1 || totalQuantity > 12}
                   className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                 >
                   Proceed to pay ₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}
@@ -258,7 +334,7 @@ const Index = () => {
                 {/* Info Message */}
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                    Maximum 4 Rakhis per order
+                    Maximum 12 Rakhis per order
                   </p>
                 </div>
               </CardContent>
@@ -344,7 +420,7 @@ const Index = () => {
                     <span className="w-8 text-center font-semibold">{rakhi1Quantity}</span>
                     <button 
                       onClick={() => adjustQuantity("rakhi1", 1)}
-                      disabled={rakhi1Quantity === 4 || totalQuantity === 4}
+                      disabled={rakhi1Quantity === 12 || totalQuantity === 12}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
@@ -366,7 +442,7 @@ const Index = () => {
                     <span className="w-8 text-center font-semibold">{rakhi2Quantity}</span>
                     <button 
                       onClick={() => adjustQuantity("rakhi2", 1)}
-                      disabled={rakhi2Quantity === 4 || totalQuantity === 4}
+                      disabled={rakhi2Quantity === 12 || totalQuantity === 12}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
@@ -406,7 +482,7 @@ const Index = () => {
                 {/* Buy Button */}
                 <Button 
                   onClick={handleBuyNow}
-                  disabled={totalQuantity < 1 || totalQuantity > 4}
+                  disabled={totalQuantity < 1 || totalQuantity > 12}
                   className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                 >
                   Proceed to pay ₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}
@@ -415,7 +491,7 @@ const Index = () => {
                 {/* Info Message */}
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                    Maximum 4 Rakhis per order
+                    Maximum 12 Rakhis per order
                   </p>
                 </div>
               </CardContent>
