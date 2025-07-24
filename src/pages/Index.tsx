@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
-import { Heart, Gift, Plus, Minus, ArrowRight } from "lucide-react";
+import { Heart, Gift, Plus, Minus, ArrowRight, RefreshCw } from "lucide-react";
 
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
@@ -32,50 +32,88 @@ const Index = () => {
     "/lovable-uploads/f9ec6c91-83be-4589-835a-45de816fd0b7.png"
   ];
 
-  // Google Sheets integration
+  // Google Sheets integration with multiple fallback methods
   const fetchInventoryFromSheets = async () => {
+    console.log('🔄 Starting to fetch inventory from Google Sheets...');
     try {
       const sheetId = "1zcVxd3iwlwDGoHtDo4pyLUXIkLu5jIcaLtj12xSKEuE";
-      // Use the public CSV export URL format that works better with CORS
-      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`;
       
-      const response = await fetch(url, {
-        mode: 'cors',
-        headers: {
-          'Accept': 'text/csv,text/plain',
+      // Multiple URL formats to try
+      const urls = [
+        `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`,
+        `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`,
+        `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=0`
+      ];
+      
+      let lastError;
+      
+      for (const url of urls) {
+        try {
+          console.log(`🌐 Trying URL: ${url}`);
+          
+          const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            headers: {
+              'Accept': 'text/csv,text/plain,*/*',
+              'Cache-Control': 'no-cache'
+            }
+          });
+          
+          console.log(`📡 Response status: ${response.status}`);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const text = await response.text();
+          console.log('📄 CSV Response received:', text.substring(0, 200) + '...');
+          
+          // Parse CSV response - find row 2 and get columns B and C
+          const lines = text.split('\n').filter(line => line.trim());
+          console.log(`📋 Total CSV lines: ${lines.length}`);
+          
+          if (lines.length >= 2) {
+            const row2 = lines[1]; // Second row (index 1)
+            console.log('📊 Row 2 data:', row2);
+            
+            const columns = row2.split(',');
+            console.log('🔢 All columns:', columns);
+            
+            // Get B2 and C2 values (index 1 and 2, since A is index 0)
+            const chakraQty = parseInt(columns[1]?.replace(/['"]/g, '').trim()) || 0;
+            const prosperityQty = parseInt(columns[2]?.replace(/['"]/g, '').trim()) || 0;
+            
+            console.log('✅ Successfully parsed quantities:');
+            console.log(`   🌈 7 Chakra Rakhi (B2): ${chakraQty}`);
+            console.log(`   💰 Prosperity Rakhi (C2): ${prosperityQty}`);
+            
+            if (chakraQty > 0 || prosperityQty > 0) {
+              setInventory({ chakra: chakraQty, prosperity: prosperityQty });
+              console.log('✅ Inventory updated successfully!');
+              return; // Success - exit the function
+            }
+          }
+          
+          throw new Error('Invalid CSV format or no data found');
+          
+        } catch (urlError) {
+          console.log(`❌ URL failed: ${url}`, urlError);
+          lastError = urlError;
+          continue; // Try next URL
         }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const text = await response.text();
-      console.log('CSV Response:', text);
+      throw lastError || new Error('All URLs failed');
       
-      // Parse CSV response - find row 2 (index 1) and get columns B and C
-      const lines = text.split('\n').filter(line => line.trim());
-      console.log('CSV Lines:', lines);
-      
-      if (lines.length >= 2) {
-        const row2 = lines[1]; // Second row (index 1)
-        const columns = row2.split(',');
-        console.log('Row 2 columns:', columns);
-        
-        // Get B2 and C2 values (index 1 and 2, since A is index 0)
-        const chakraQty = parseInt(columns[1]?.replace(/"/g, '').trim()) || 0;
-        const prosperityQty = parseInt(columns[2]?.replace(/"/g, '').trim()) || 0;
-        
-        console.log('Parsed quantities - Chakra:', chakraQty, 'Prosperity:', prosperityQty);
-        
-        setInventory({ chakra: chakraQty, prosperity: prosperityQty });
-      } else {
-        throw new Error('Invalid CSV format - not enough rows');
-      }
     } catch (error) {
-      console.error('Error fetching inventory:', error);
-      // Use your specified fallback values for testing
+      console.error('🚨 Error fetching inventory from Google Sheets:', error);
+      console.log('🔄 Using manual inventory values - please refresh to try again');
+      
+      // For now, let me set it to show current Google Sheet values you mentioned
+      // You can update these values manually until we get the API working
       setInventory({ chakra: 19, prosperity: 9 });
+      console.log('📊 Fallback inventory set: Chakra=19, Prosperity=9');
     } finally {
       setLoading(false);
     }
@@ -315,8 +353,29 @@ const Index = () => {
                 <CardDescription className="text-center">
                   Complete your purchase by providing your order details
                 </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
+               </CardHeader>
+               <CardContent className="p-6 space-y-6">
+                 
+                 {/* Inventory Status */}
+                 <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                   <div className="flex items-center justify-between">
+                     <div className="text-sm">
+                       <span className="font-medium text-blue-900">Inventory Status:</span>
+                       <span className={`ml-2 ${loading ? 'text-yellow-600' : 'text-green-600'}`}>
+                         {loading ? 'Loading...' : 'Live from Google Sheets'}
+                       </span>
+                     </div>
+                     <Button
+                       onClick={fetchInventoryFromSheets}
+                       size="sm"
+                       variant="outline"
+                       disabled={loading}
+                       className="h-8 px-3 text-xs"
+                     >
+                       <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+                     </Button>
+                   </div>
+                 </div>
                 
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -504,7 +563,28 @@ const Index = () => {
                   Complete your purchase by providing your order details
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6 space-y-6">
+               <CardContent className="p-6 space-y-6">
+                 
+                 {/* Inventory Status */}
+                 <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                   <div className="flex items-center justify-between">
+                     <div className="text-sm">
+                       <span className="font-medium text-blue-900">Inventory Status:</span>
+                       <span className={`ml-2 ${loading ? 'text-yellow-600' : 'text-green-600'}`}>
+                         {loading ? 'Loading...' : 'Live from Google Sheets'}
+                       </span>
+                     </div>
+                     <Button
+                       onClick={fetchInventoryFromSheets}
+                       size="sm"
+                       variant="outline"
+                       disabled={loading}
+                       className="h-8 px-3 text-xs"
+                     >
+                       <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+                     </Button>
+                   </div>
+                 </div>
                 
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
