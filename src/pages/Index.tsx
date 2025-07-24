@@ -361,7 +361,7 @@ const Index = () => {
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
                     {loading ? (
-                      <span className="text-xs text-muted-foreground">Loading...</span>
+                      <span className="text-xs text-yellow-600">Loading...</span>
                     ) : isSoldOut(inventory.chakra) ? (
                       <span className="text-xs text-red-500 font-medium">SOLD OUT</span>
                     ) : (
@@ -370,7 +370,11 @@ const Index = () => {
                       </span>
                     )}
                   </div>
-                  {isSoldOut(inventory.chakra) ? (
+                  {loading ? (
+                    <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-sm font-medium">
+                      Loading...
+                    </div>
+                  ) : isSoldOut(inventory.chakra) ? (
                     <div className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-sm font-medium">
                       SOLD OUT
                     </div>
@@ -409,7 +413,11 @@ const Index = () => {
                       </span>
                     )}
                   </div>
-                  {isSoldOut(inventory.prosperity) ? (
+                  {loading ? (
+                    <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-sm font-medium">
+                      Loading...
+                    </div>
+                  ) : isSoldOut(inventory.prosperity) ? (
                     <div className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-sm font-medium">
                       SOLD OUT
                     </div>
@@ -570,7 +578,11 @@ const Index = () => {
                       </span>
                     )}
                   </div>
-                  {isSoldOut(inventory.chakra) ? (
+                  {loading ? (
+                    <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-sm font-medium">
+                      Loading...
+                    </div>
+                  ) : isSoldOut(inventory.chakra) ? (
                     <div className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-sm font-medium">
                       SOLD OUT
                     </div>
@@ -609,7 +621,11 @@ const Index = () => {
                       </span>
                     )}
                   </div>
-                  {isSoldOut(inventory.prosperity) ? (
+                  {loading ? (
+                    <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-sm font-medium">
+                      Loading...
+                    </div>
+                  ) : isSoldOut(inventory.prosperity) ? (
                     <div className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-sm font-medium">
                       SOLD OUT
                     </div>
