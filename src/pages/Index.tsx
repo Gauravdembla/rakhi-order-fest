@@ -36,25 +36,46 @@ const Index = () => {
   const fetchInventoryFromSheets = async () => {
     try {
       const sheetId = "1zcVxd3iwlwDGoHtDo4pyLUXIkLu5jIcaLtj12xSKEuE";
-      const range = "Sheet1!B2:C2";
-      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&range=${range}`;
+      // Use the public CSV export URL format that works better with CORS
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`;
       
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        mode: 'cors',
+        headers: {
+          'Accept': 'text/csv,text/plain',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const text = await response.text();
+      console.log('CSV Response:', text);
       
-      // Parse CSV response
-      const lines = text.split('\n');
-      if (lines.length > 0) {
-        const values = lines[0].split(',').map(val => val.replace(/"/g, ''));
-        const chakraQty = parseInt(values[0]) || 0;
-        const prosperityQty = parseInt(values[1]) || 0;
+      // Parse CSV response - find row 2 (index 1) and get columns B and C
+      const lines = text.split('\n').filter(line => line.trim());
+      console.log('CSV Lines:', lines);
+      
+      if (lines.length >= 2) {
+        const row2 = lines[1]; // Second row (index 1)
+        const columns = row2.split(',');
+        console.log('Row 2 columns:', columns);
+        
+        // Get B2 and C2 values (index 1 and 2, since A is index 0)
+        const chakraQty = parseInt(columns[1]?.replace(/"/g, '').trim()) || 0;
+        const prosperityQty = parseInt(columns[2]?.replace(/"/g, '').trim()) || 0;
+        
+        console.log('Parsed quantities - Chakra:', chakraQty, 'Prosperity:', prosperityQty);
         
         setInventory({ chakra: chakraQty, prosperity: prosperityQty });
+      } else {
+        throw new Error('Invalid CSV format - not enough rows');
       }
     } catch (error) {
       console.error('Error fetching inventory:', error);
-      // Fallback to default values
-      setInventory({ chakra: 9, prosperity: 0 });
+      // Use your specified fallback values for testing
+      setInventory({ chakra: 19, prosperity: 9 });
     } finally {
       setLoading(false);
     }
