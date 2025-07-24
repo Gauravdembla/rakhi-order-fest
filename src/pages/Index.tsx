@@ -355,27 +355,6 @@ const Index = () => {
                 </CardDescription>
                </CardHeader>
                <CardContent className="p-6 space-y-6">
-                 
-                 {/* Inventory Status */}
-                 <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-                   <div className="flex items-center justify-between">
-                     <div className="text-sm">
-                       <span className="font-medium text-blue-900">Inventory Status:</span>
-                       <span className={`ml-2 ${loading ? 'text-yellow-600' : 'text-green-600'}`}>
-                         {loading ? 'Loading...' : 'Live from Google Sheets'}
-                       </span>
-                     </div>
-                     <Button
-                       onClick={fetchInventoryFromSheets}
-                       size="sm"
-                       variant="outline"
-                       disabled={loading}
-                       className="h-8 px-3 text-xs"
-                     >
-                       <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
-                     </Button>
-                   </div>
-                 </div>
                 
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -576,27 +555,6 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
                <CardContent className="p-6 space-y-6">
-                 
-                 {/* Inventory Status */}
-                 <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-                   <div className="flex items-center justify-between">
-                     <div className="text-sm">
-                       <span className="font-medium text-blue-900">Inventory Status:</span>
-                       <span className={`ml-2 ${loading ? 'text-yellow-600' : 'text-green-600'}`}>
-                         {loading ? 'Loading...' : 'Live from Google Sheets'}
-                       </span>
-                     </div>
-                     <Button
-                       onClick={fetchInventoryFromSheets}
-                       size="sm"
-                       variant="outline"
-                       disabled={loading}
-                       className="h-8 px-3 text-xs"
-                     >
-                       <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
-                     </Button>
-                   </div>
-                 </div>
                 
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
