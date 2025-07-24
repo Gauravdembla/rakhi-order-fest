@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,8 @@ const Index = () => {
   const [rakhi2Quantity, setRakhi2Quantity] = useState<number>(0);
   const [error, setError] = useState<string>("");
   const [currentSlide, setCurrentSlide] = useState<number>(0);
+  const [inventory, setInventory] = useState({ chakra: 0, prosperity: 0 });
+  const [loading, setLoading] = useState(true);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
   
@@ -29,6 +31,55 @@ const Index = () => {
     "/lovable-uploads/4988f179-e576-41e3-aa28-6a8d99ac9a29.png",
     "/lovable-uploads/f9ec6c91-83be-4589-835a-45de816fd0b7.png"
   ];
+
+  // Google Sheets integration
+  const fetchInventoryFromSheets = async () => {
+    try {
+      const sheetId = "1zcVxd3iwlwDGoHtDo4pyLUXIkLu5jIcaLtj12xSKEuE";
+      const range = "Sheet1!B2:C2";
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&range=${range}`;
+      
+      const response = await fetch(url);
+      const text = await response.text();
+      
+      // Parse CSV response
+      const lines = text.split('\n');
+      if (lines.length > 0) {
+        const values = lines[0].split(',').map(val => val.replace(/"/g, ''));
+        const chakraQty = parseInt(values[0]) || 0;
+        const prosperityQty = parseInt(values[1]) || 0;
+        
+        setInventory({ chakra: chakraQty, prosperity: prosperityQty });
+      }
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+      // Fallback to default values
+      setInventory({ chakra: 9, prosperity: 0 });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInventoryFromSheets();
+  }, []);
+
+  // Helper functions for inventory
+  const getAvailableQuantity = (quantity: number) => {
+    return quantity >= 5 ? quantity - 5 : 0;
+  };
+
+  const isSoldOut = (quantity: number) => {
+    return quantity < 5;
+  };
+
+  const getMaxSelectableQuantity = (type: "rakhi1" | "rakhi2") => {
+    if (type === "rakhi1") {
+      return isSoldOut(inventory.chakra) ? 0 : Math.min(12, inventory.chakra);
+    } else {
+      return isSoldOut(inventory.prosperity) ? 0 : Math.min(12, inventory.prosperity);
+    }
+  };
 
 
   const validateForm = () => {
@@ -151,10 +202,12 @@ const Index = () => {
 
   const adjustQuantity = (type: "rakhi1" | "rakhi2", change: number) => {
     if (type === "rakhi1") {
-      const newQuantity = Math.max(0, Math.min(12, rakhi1Quantity + change));
+      const maxQuantity = getMaxSelectableQuantity("rakhi1");
+      const newQuantity = Math.max(0, Math.min(maxQuantity, rakhi1Quantity + change));
       setRakhi1Quantity(newQuantity);
     } else {
-      const newQuantity = Math.max(0, Math.min(12, rakhi2Quantity + change));
+      const maxQuantity = getMaxSelectableQuantity("rakhi2");
+      const newQuantity = Math.max(0, Math.min(maxQuantity, rakhi2Quantity + change));
       setRakhi2Quantity(newQuantity);
     }
     if (error) setError("");
@@ -246,11 +299,22 @@ const Index = () => {
                 
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
+                    {loading ? (
+                      <span className="text-xs text-muted-foreground">Loading...</span>
+                    ) : isSoldOut(inventory.chakra) ? (
+                      <span className="text-xs text-red-500 font-medium">SOLD OUT</span>
+                    ) : (
+                      <span className="text-xs text-green-600">
+                        {getAvailableQuantity(inventory.chakra)} Available
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={() => adjustQuantity("rakhi1", -1)}
-                      disabled={rakhi1Quantity === 0}
+                      disabled={rakhi1Quantity === 0 || isSoldOut(inventory.chakra)}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Minus className="h-4 w-4 text-primary" />
@@ -258,7 +322,7 @@ const Index = () => {
                     <span className="w-8 text-center font-semibold">{rakhi1Quantity}</span>
                     <button 
                       onClick={() => adjustQuantity("rakhi1", 1)}
-                      disabled={rakhi1Quantity === 12 || totalQuantity === 12}
+                      disabled={isSoldOut(inventory.chakra) || rakhi1Quantity >= getMaxSelectableQuantity("rakhi1") || totalQuantity === 12}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
@@ -268,11 +332,22 @@ const Index = () => {
 
                 {/* Rakhi 2 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <span className="font-medium text-foreground">Prosperity Rakhi</span>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">Prosperity Rakhi</span>
+                    {loading ? (
+                      <span className="text-xs text-muted-foreground">Loading...</span>
+                    ) : isSoldOut(inventory.prosperity) ? (
+                      <span className="text-xs text-red-500 font-medium">SOLD OUT</span>
+                    ) : (
+                      <span className="text-xs text-green-600">
+                        {getAvailableQuantity(inventory.prosperity)} Available
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={() => adjustQuantity("rakhi2", -1)}
-                      disabled={rakhi2Quantity === 0}
+                      disabled={rakhi2Quantity === 0 || isSoldOut(inventory.prosperity)}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Minus className="h-4 w-4 text-primary" />
@@ -280,7 +355,7 @@ const Index = () => {
                     <span className="w-8 text-center font-semibold">{rakhi2Quantity}</span>
                     <button 
                       onClick={() => adjustQuantity("rakhi2", 1)}
-                      disabled={rakhi2Quantity === 12 || totalQuantity === 12}
+                      disabled={isSoldOut(inventory.prosperity) || rakhi2Quantity >= getMaxSelectableQuantity("rakhi2") || totalQuantity === 12}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
@@ -412,11 +487,22 @@ const Index = () => {
                 
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
+                    {loading ? (
+                      <span className="text-xs text-muted-foreground">Loading...</span>
+                    ) : isSoldOut(inventory.chakra) ? (
+                      <span className="text-xs text-red-500 font-medium">SOLD OUT</span>
+                    ) : (
+                      <span className="text-xs text-green-600">
+                        {getAvailableQuantity(inventory.chakra)} Available
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={() => adjustQuantity("rakhi1", -1)}
-                      disabled={rakhi1Quantity === 0}
+                      disabled={rakhi1Quantity === 0 || isSoldOut(inventory.chakra)}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Minus className="h-4 w-4 text-primary" />
@@ -424,7 +510,7 @@ const Index = () => {
                     <span className="w-8 text-center font-semibold">{rakhi1Quantity}</span>
                     <button 
                       onClick={() => adjustQuantity("rakhi1", 1)}
-                      disabled={rakhi1Quantity === 12 || totalQuantity === 12}
+                      disabled={isSoldOut(inventory.chakra) || rakhi1Quantity >= getMaxSelectableQuantity("rakhi1") || totalQuantity === 12}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
@@ -434,11 +520,22 @@ const Index = () => {
 
                 {/* Rakhi 2 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <span className="font-medium text-foreground">Prosperity Rakhi</span>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">Prosperity Rakhi</span>
+                    {loading ? (
+                      <span className="text-xs text-muted-foreground">Loading...</span>
+                    ) : isSoldOut(inventory.prosperity) ? (
+                      <span className="text-xs text-red-500 font-medium">SOLD OUT</span>
+                    ) : (
+                      <span className="text-xs text-green-600">
+                        {getAvailableQuantity(inventory.prosperity)} Available
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={() => adjustQuantity("rakhi2", -1)}
-                      disabled={rakhi2Quantity === 0}
+                      disabled={rakhi2Quantity === 0 || isSoldOut(inventory.prosperity)}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Minus className="h-4 w-4 text-primary" />
@@ -446,7 +543,7 @@ const Index = () => {
                     <span className="w-8 text-center font-semibold">{rakhi2Quantity}</span>
                     <button 
                       onClick={() => adjustQuantity("rakhi2", 1)}
-                      disabled={rakhi2Quantity === 12 || totalQuantity === 12}
+                      disabled={isSoldOut(inventory.prosperity) || rakhi2Quantity >= getMaxSelectableQuantity("rakhi2") || totalQuantity === 12}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
