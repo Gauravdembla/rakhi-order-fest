@@ -88,11 +88,10 @@ const Index = () => {
             console.log(`   🌈 7 Chakra Rakhi (B2): ${chakraQty}`);
             console.log(`   💰 Prosperity Rakhi (C2): ${prosperityQty}`);
             
-            if (chakraQty > 0 || prosperityQty > 0) {
-              setInventory({ chakra: chakraQty, prosperity: prosperityQty });
-              console.log('✅ Inventory updated successfully!');
-              return; // Success - exit the function
-            }
+            // Products marked as sold out - ignoring sheet data
+            setInventory({ chakra: 0, prosperity: 0 });
+            console.log('✅ Products marked as SOLD OUT');
+            return; // Success - exit the function
           }
           
           throw new Error('Invalid CSV format or no data found');
@@ -110,10 +109,9 @@ const Index = () => {
       console.error('🚨 Error fetching inventory from Google Sheets:', error);
       console.log('🔄 Using manual inventory values - please refresh to try again');
       
-      // For now, let me set it to show current Google Sheet values you mentioned
-      // You can update these values manually until we get the API working
-      setInventory({ chakra: 19, prosperity: 9 });
-      console.log('📊 Fallback inventory set: Chakra=19, Prosperity=9');
+      // Marking products as sold out
+      setInventory({ chakra: 0, prosperity: 0 });
+      console.log('📊 Products marked as SOLD OUT');
     } finally {
       setLoading(false);
     }
