@@ -88,9 +88,9 @@ const Index = () => {
             console.log(`   🌈 7 Chakra Rakhi (B2): ${chakraQty}`);
             console.log(`   💰 Prosperity Rakhi (C2): ${prosperityQty}`);
             
-            // Products marked as sold out - ignoring sheet data
-            setInventory({ chakra: 0, prosperity: 0 });
-            console.log('✅ Products marked as SOLD OUT');
+            // Setting inventory to 2 for both products
+            setInventory({ chakra: 2, prosperity: 2 });
+            console.log('✅ Inventory set to 2 for both products');
             return; // Success - exit the function
           }
           
@@ -109,9 +109,9 @@ const Index = () => {
       console.error('🚨 Error fetching inventory from Google Sheets:', error);
       console.log('🔄 Using manual inventory values - please refresh to try again');
       
-      // Marking products as sold out
-      setInventory({ chakra: 0, prosperity: 0 });
-      console.log('📊 Products marked as SOLD OUT');
+      // Setting inventory to 2 for both products
+      setInventory({ chakra: 2, prosperity: 2 });
+      console.log('📊 Inventory set to 2 for both products');
     } finally {
       setLoading(false);
     }
