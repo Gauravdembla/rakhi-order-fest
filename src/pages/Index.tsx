@@ -123,13 +123,12 @@ const Index = () => {
 
   // Helper functions for inventory
   const getAvailableQuantity = (quantity: number) => {
-    return quantity > 5 ? quantity - 5 : 0;
+    return quantity;
   };
 
   const isSoldOut = (quantity: number) => {
-    return quantity <= 5; // Changed from < 5 to <= 5
+    return quantity <= 0;
   };
-
   const getMaxSelectableQuantity = (type: "rakhi1" | "rakhi2") => {
     if (type === "rakhi1") {
       return isSoldOut(inventory.chakra) ? 0 : Math.min(12, getAvailableQuantity(inventory.chakra));
