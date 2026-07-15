@@ -13,6 +13,13 @@ import {
   createPaymentSessionWithConflictRecovery,
   openRazorpayCheckout,
 } from "@/services/razorpayService";
+import rakhi1 from "@/assets/rakhi-1.webp.asset.json";
+import rakhi2 from "@/assets/rakhi-2.webp.asset.json";
+import rakhi3 from "@/assets/rakhi-3.webp.asset.json";
+import rakhi4 from "@/assets/rakhi-4.webp.asset.json";
+import rakhi5 from "@/assets/rakhi-5.webp.asset.json";
+import rakhi6 from "@/assets/rakhi-6.webp.asset.json";
+import rakhi7 from "@/assets/rakhi-7.webp.asset.json";
 
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
@@ -60,10 +67,13 @@ const Index = () => {
     (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
 
   const rakhiImages = [
-    "/lovable-uploads/2c76ff5a-d797-43bc-a6c8-379c00466d0f.png",
-    "/lovable-uploads/caa9bb77-fa09-494b-b99b-9fc64bc2a3aa.png", 
-    "/lovable-uploads/4988f179-e576-41e3-aa28-6a8d99ac9a29.png",
-    "/lovable-uploads/f9ec6c91-83be-4589-835a-45de816fd0b7.png"
+    rakhi1.url,
+    rakhi2.url,
+    rakhi3.url,
+    rakhi4.url,
+    rakhi5.url,
+    rakhi6.url,
+    rakhi7.url,
   ];
 
   // Google Sheets integration with multiple fallback methods
