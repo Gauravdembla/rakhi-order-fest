@@ -12,6 +12,10 @@ export interface PaymentConfig {
   email: string;
   phone: string;
   clientOrderId: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  pincode?: string;
 }
 
 export interface PaymentResponse {
@@ -60,6 +64,10 @@ export async function createPaymentSession(
         email: config.email,
         phone: config.phone,
         clientOrderId: config.clientOrderId,
+        address1: config.address1,
+        address2: config.address2,
+        city: config.city,
+        pincode: config.pincode,
       }),
     });
     const data = await response.json();
