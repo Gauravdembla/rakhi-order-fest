@@ -177,8 +177,8 @@ const Index = () => {
 
 
   const validateForm = () => {
-    if (totalQuantity < 1) {
-      setError("Please select at least 1 rakhi to proceed.");
+    if (grandTotalItems < 1) {
+      setError("Please select at least 1 item to proceed.");
       return false;
     }
     if (totalQuantity > 12) {
@@ -203,8 +203,8 @@ const Index = () => {
     phone: z
       .string()
       .trim()
-      .regex(/^[6-9]\d{9}$/, {
-        message: "Enter a valid 10-digit Indian mobile number",
+      .regex(/^\d{6,15}$/, {
+        message: "Enter a valid mobile number",
       }),
     address1: z
       .string()
@@ -240,7 +240,7 @@ const Index = () => {
       return;
     }
 
-    const amount = getPricing(totalQuantity);
+    const amount = totalAmount;
     if (!amount) {
       setError("Invalid amount. Please adjust quantity.");
       return;
@@ -252,13 +252,13 @@ const Index = () => {
       await ensureRazorpayScript();
       const clientOrderId = `rakhi_${Date.now()}_${Math.random()
         .toString(36)
-        .slice(2, 8)}_C${rakhi1Quantity}_P${rakhi2Quantity}`;
+        .slice(2, 8)}_C${rakhi1Quantity}_P${rakhi2Quantity}_T${testQuantity}`;
 
       const config = {
         amount,
         name: parsed.data.name,
         email: parsed.data.email,
-        phone: parsed.data.phone,
+        phone: `${countryCode}${parsed.data.phone}`,
         clientOrderId,
         address1: parsed.data.address1,
         address2: parsed.data.address2 || "",
@@ -284,6 +284,7 @@ const Index = () => {
           });
           setRakhi1Quantity(0);
           setRakhi2Quantity(0);
+          setTestQuantity(0);
           setCustomerName("");
           setCustomerEmail("");
           setCustomerPhone("");
