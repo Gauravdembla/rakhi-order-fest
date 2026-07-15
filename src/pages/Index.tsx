@@ -20,6 +20,9 @@ import rakhi4 from "@/assets/rakhi-4.webp.asset.json";
 import rakhi5 from "@/assets/rakhi-5.webp.asset.json";
 import rakhi6 from "@/assets/rakhi-6.webp.asset.json";
 import rakhi7 from "@/assets/rakhi-7.webp.asset.json";
+import chakraBanner from "@/assets/chakra-banner.webp.asset.json";
+import hooponoBanner from "@/assets/hoopono-banner.webp.asset.json";
+import pricingBanner from "@/assets/pricing-banner.webp.asset.json";
 
 type RakhiDescProps = {
   emoji: string;
@@ -94,6 +97,9 @@ const Index = () => {
     (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
 
   const rakhiImages = [
+    chakraBanner.url,
+    hooponoBanner.url,
+    pricingBanner.url,
     rakhi1.url,
     rakhi2.url,
     rakhi3.url,
