@@ -19,7 +19,14 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
 
-    const required = ['client_order_id', 'customer_name', 'customer_email', 'customer_phone', 'amount'];
+    const incomingStatus = String(body.status ?? 'success');
+    const isDraft = incomingStatus === 'draft';
+
+    // Drafts only need a client_order_id; everything else can be partial as the
+    // user is still typing. Non-draft writes keep the original strict validation.
+    const required = isDraft
+      ? ['client_order_id']
+      : ['client_order_id', 'customer_name', 'customer_email', 'customer_phone', 'amount'];
     for (const k of required) {
       if (!body[k]) {
         return new Response(JSON.stringify({ error: `Missing field: ${k}` }), {
@@ -29,11 +36,26 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Never let a draft overwrite an already-progressed order.
+    if (isDraft) {
+      const { data: existing } = await supabase
+        .from('orders')
+        .select('status')
+        .eq('client_order_id', String(body.client_order_id))
+        .maybeSingle();
+      if (existing && existing.status && existing.status !== 'draft') {
+        return new Response(
+          JSON.stringify({ ok: true, skipped: 'status_already_progressed', status: existing.status }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+    }
+
     const row = {
       client_order_id: String(body.client_order_id),
-      customer_name: String(body.customer_name),
-      customer_email: String(body.customer_email),
-      customer_phone: String(body.customer_phone),
+      customer_name: String(body.customer_name ?? ''),
+      customer_email: String(body.customer_email ?? ''),
+      customer_phone: String(body.customer_phone ?? ''),
       address1: body.address1 ?? null,
       address2: body.address2 ?? null,
       city: body.city ?? null,
@@ -42,9 +64,9 @@ Deno.serve(async (req) => {
       prosperity_qty: Number(body.prosperity_qty ?? 0),
       hooponopono_qty: Number(body.hooponopono_qty ?? 0),
       total_qty: Number(body.total_qty ?? 0),
-      amount: Number(body.amount),
+      amount: Number(body.amount ?? 0),
       currency: body.currency ?? 'INR',
-      status: body.status ?? 'success',
+      status: incomingStatus,
       razorpay_order_id: body.razorpay_order_id ?? null,
       razorpay_payment_id: body.razorpay_payment_id ?? null,
       razorpay_signature: body.razorpay_signature ?? null,

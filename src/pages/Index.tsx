@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -183,6 +183,62 @@ const Index = () => {
 
   const grandTotalItems = totalQuantity;
   const totalAmount = totalQuantity > 0 ? getPricing(totalQuantity) : 0;
+
+  // Stable client_order_id for this browser session — reused for draft autosave
+  // AND for the final "Proceed to pay" write, so the upsert on client_order_id
+  // simply flips the same row from draft → pending.
+  const clientOrderIdRef = useRef<string>(
+    `rakhi_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+  );
+
+  // Debounced draft autosave — persists customer details + current cart while
+  // the user is filling the checkout form, so we never lose their info even if
+  // they abandon or the final record-order call fails.
+  useEffect(() => {
+    const nameOk = customerName.trim().length >= 2;
+    const phoneOk = /^\d{10,15}$/.test(customerPhone.trim());
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim());
+    // Only start saving once we have a name AND (email or phone) — avoids junk rows.
+    if (!nameOk || (!phoneOk && !emailOk)) return;
+
+    const handle = setTimeout(() => {
+      void supabase.functions
+        .invoke("record-order", {
+          body: {
+            client_order_id: clientOrderIdRef.current,
+            customer_name: customerName.trim(),
+            customer_email: customerEmail.trim(),
+            customer_phone: customerPhone.trim(),
+            address1: address1.trim(),
+            address2: address2.trim(),
+            city: city.trim(),
+            pincode: pincode.trim(),
+            chakra_qty: rakhi1Quantity,
+            prosperity_qty: rakhi2Quantity,
+            hooponopono_qty: testQuantity,
+            total_qty: grandTotalItems,
+            amount: totalAmount,
+            currency: "INR",
+            status: "draft",
+          },
+        })
+        .catch((e) => console.warn("[record-order draft] failed:", e));
+    }, 800);
+    return () => clearTimeout(handle);
+  }, [
+    customerName,
+    customerEmail,
+    customerPhone,
+    address1,
+    address2,
+    city,
+    pincode,
+    rakhi1Quantity,
+    rakhi2Quantity,
+    testQuantity,
+    grandTotalItems,
+    totalAmount,
+  ]);
 
   const rakhiImages = [
     threeRakhisBanner.url, // 1. Hero overview of all 3 rakhis
@@ -385,9 +441,7 @@ const Index = () => {
     setProcessing(true);
     setError("");
     try {
-      const clientOrderId = `rakhi_${Date.now()}_${Math.random()
-        .toString(36)
-        .slice(2, 8)}_C${rakhi1Quantity}_P${rakhi2Quantity}_T${testQuantity}`;
+      const clientOrderId = clientOrderIdRef.current;
 
       // Fire webhook to Pabbly (fire-and-forget) as soon as user proceeds to payment
       void supabase.functions.invoke("notify-order-webhook", {
