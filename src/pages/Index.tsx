@@ -98,17 +98,17 @@ const Index = () => {
     (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
 
   const rakhiImages = [
-    threeRakhisBanner.url,
-    chakraBanner.url,
-    hooponoBanner.url,
-    pricingBanner.url,
-    rakhi1.url,
+    threeRakhisBanner.url, // 1. Hero overview of all 3 rakhis
+    chakraBanner.url,      // 2. 7 Chakra product banner
+    hooponoBanner.url,     // 3. Ho'oponopono product banner
+    rakhi1.url,            // 4. Lifestyle / detail shots
     rakhi2.url,
     rakhi3.url,
     rakhi4.url,
     rakhi5.url,
     rakhi6.url,
     rakhi7.url,
+    pricingBanner.url,     // 11. Pricing / bundle offer as closing CTA
   ];
 
   // Google Sheets integration with multiple fallback methods
