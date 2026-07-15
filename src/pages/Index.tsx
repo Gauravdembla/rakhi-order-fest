@@ -42,23 +42,19 @@ const RakhiDescription = ({ emoji, title, short, more, size = "sm" }: RakhiDescP
   return (
     <div>
       <h3 className={headingCls}>{emoji} {title}</h3>
-      <p className={textCls}>
-        {open ? (
-          short
-        ) : size === "sm" ? (
-          <span className="line-clamp-1 align-baseline">{short}</span>
-        ) : (
-          short
-        )}
-        {!open && (
+      {open ? (
+        <p className={textCls}>{short}</p>
+      ) : (
+        <div className={`${textCls} flex items-baseline gap-2`}>
+          <span className="truncate min-w-0">{short}</span>
           <button
             onClick={() => setOpen(true)}
-            className="text-primary font-medium hover:underline text-sm ml-1 whitespace-nowrap"
+            className="text-primary font-medium hover:underline text-sm whitespace-nowrap shrink-0"
           >
             Read more...
           </button>
-        )}
-      </p>
+        </div>
+      )}
       {open && (
         <div className="mt-2 space-y-2">
           {more}
