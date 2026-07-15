@@ -8,10 +8,10 @@ const TM_WHITELABEL_CREATOR = "66f1851e9b5fc4e6c571a7ab";
 const sanitize = (s: string) =>
   (s ?? "").trim().replace(/^["']|["']$/g, "").replace(/[^\x20-\x7E]/g, "");
 
-const normPhone = (p?: string) =>
-  (p ?? "").replace(/\D+/g, "").replace(/^0+/, "");
+const normPhone = (p?: unknown) =>
+  String(p ?? "").replace(/\D+/g, "").replace(/^0+/, "");
 
-const normEmail = (e?: string) => (e ?? "").trim().toLowerCase();
+const normEmail = (e?: unknown) => String(e ?? "").trim().toLowerCase();
 
 async function getTagmangoToken(): Promise<string> {
   const accountId = Deno.env.get("CF_ACCOUNT_ID");
