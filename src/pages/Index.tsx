@@ -69,7 +69,7 @@ const Index = () => {
   const [processing, setProcessing] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<"items" | "details">("items");
 
-  const totalQuantity = rakhi1Quantity + rakhi2Quantity;
+  const totalQuantity = rakhi1Quantity + rakhi2Quantity + testQuantity;
   const countryCodes = [
     { code: "+91", label: "🇮🇳 +91" },
     { code: "+1", label: "🇺🇸 +1" },
@@ -83,17 +83,15 @@ const Index = () => {
   ];
   
   const getPricing = (quantity: number) => {
-    const prices = { 
-      1: 199, 2: 299, 3: 399, 4: 499,
-      5: 649, 6: 749, 7: 849, 8: 949,
-      9: 1099, 10: 1199, 11: 1299, 12: 1349
+    const prices: Record<number, number> = {
+      1: 299, 2: 499, 3: 699, 4: 899, 5: 1099,
+      6: 1299, 7: 1499, 8: 1699, 9: 1899, 10: 1999,
     };
     return prices[quantity as keyof typeof prices] || 0;
   };
 
-  const grandTotalItems = totalQuantity + testQuantity;
-  const totalAmount =
-    (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
+  const grandTotalItems = totalQuantity;
+  const totalAmount = totalQuantity > 0 ? getPricing(totalQuantity) : 0;
 
   const rakhiImages = [
     threeRakhisBanner.url, // 1. Hero overview of all 3 rakhis
@@ -224,11 +222,10 @@ const Index = () => {
     return quantity <= 0;
   };
   const getMaxSelectableQuantity = (type: "rakhi1" | "rakhi2") => {
-    if (type === "rakhi1") {
-      return isSoldOut(inventory.chakra) ? 0 : Math.min(12, getAvailableQuantity(inventory.chakra));
-    } else {
-      return isSoldOut(inventory.prosperity) ? 0 : Math.min(12, getAvailableQuantity(inventory.prosperity));
-    }
+    // Display-only inventory of 50 per rakhi; cap total order at 10.
+    const remaining = Math.max(0, 10 - totalQuantity);
+    if (type === "rakhi1") return rakhi1Quantity + remaining;
+    return rakhi2Quantity + remaining;
   };
 
 
@@ -237,8 +234,8 @@ const Index = () => {
       setError("Please select at least 1 item to proceed.");
       return false;
     }
-    if (totalQuantity > 12) {
-      setError("Maximum 12 rakhis can be ordered in total.");
+    if (totalQuantity > 10) {
+      setError("Maximum 10 rakhis can be ordered in total.");
       return false;
     }
     setError("");
@@ -547,26 +544,9 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
-                    {loading ? (
-                      <span className="text-xs text-yellow-600">Loading...</span>
-                    ) : isSoldOut(inventory.chakra) ? (
-                      <span className="text-xs text-red-500 font-medium">SOLD OUT</span>
-                    ) : (
-                      <span className="text-xs text-green-600">
-                        {getAvailableQuantity(inventory.chakra)} Available
-                      </span>
-                    )}
+                    <span className="text-xs text-green-600">50 Available</span>
                   </div>
-                  {loading ? (
-                    <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-sm font-medium">
-                      Loading...
-                    </div>
-                  ) : isSoldOut(inventory.chakra) ? (
-                    <div className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-sm font-medium">
-                      SOLD OUT
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                       <button 
                         onClick={() => adjustQuantity("rakhi1", -1)}
                         disabled={rakhi1Quantity === 0}
@@ -577,39 +557,21 @@ const Index = () => {
                       <span className="w-8 text-center font-semibold">{rakhi1Quantity}</span>
                       <button 
                         onClick={() => adjustQuantity("rakhi1", 1)}
-                        disabled={rakhi1Quantity >= getMaxSelectableQuantity("rakhi1") || totalQuantity === 12}
+                        disabled={totalQuantity >= 10}
                         className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                       >
                         <Plus className="h-4 w-4 text-primary" />
                       </button>
-                    </div>
-                  )}
+                  </div>
                 </div>
 
                 {/* Rakhi 2 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Prosperity Rakhi</span>
-                    {loading ? (
-                      <span className="text-xs text-muted-foreground">Loading...</span>
-                    ) : isSoldOut(inventory.prosperity) ? (
-                      <span className="text-xs text-red-500 font-medium">SOLD OUT</span>
-                    ) : (
-                      <span className="text-xs text-green-600">
-                        {getAvailableQuantity(inventory.prosperity)} Available
-                      </span>
-                    )}
+                    <span className="text-xs text-green-600">50 Available</span>
                   </div>
-                  {loading ? (
-                    <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-sm font-medium">
-                      Loading...
-                    </div>
-                  ) : isSoldOut(inventory.prosperity) ? (
-                    <div className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-sm font-medium">
-                      SOLD OUT
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                       <button 
                         onClick={() => adjustQuantity("rakhi2", -1)}
                         disabled={rakhi2Quantity === 0}
@@ -620,20 +582,19 @@ const Index = () => {
                       <span className="w-8 text-center font-semibold">{rakhi2Quantity}</span>
                       <button 
                         onClick={() => adjustQuantity("rakhi2", 1)}
-                        disabled={rakhi2Quantity >= getMaxSelectableQuantity("rakhi2") || totalQuantity === 12}
+                        disabled={totalQuantity >= 10}
                         className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                       >
                         <Plus className="h-4 w-4 text-primary" />
                       </button>
-                    </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Test Rakhi */}
-                <div className="flex items-center justify-between p-4 border border-dashed border-primary/50 rounded-lg bg-primary/5">
+                {/* Ho'oponopono Rakhi */}
+                <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
-                    <span className="font-medium text-foreground">🧪 Test Rakhi</span>
-                    <span className="text-xs text-muted-foreground">₹50 (for payment testing)</span>
+                    <span className="font-medium text-foreground">Ho'oponopono Rakhi</span>
+                    <span className="text-xs text-green-600">50 Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -645,8 +606,8 @@ const Index = () => {
                     </button>
                     <span className="w-8 text-center font-semibold">{testQuantity}</span>
                     <button
-                      onClick={() => setTestQuantity(Math.min(5, testQuantity + 1))}
-                      disabled={testQuantity >= 5}
+                      onClick={() => setTestQuantity(testQuantity + 1)}
+                      disabled={totalQuantity >= 10}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
@@ -663,12 +624,6 @@ const Index = () => {
                     <span>Rakhis ({totalQuantity})</span>
                     <span>₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
                   </div>
-                  {testQuantity > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span>Test Rakhi ({testQuantity})</span>
-                      <span>₹{testQuantity * 50}</span>
-                    </div>
-                  )}
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-semibold">
                       <span>Amount to be paid:</span>
@@ -699,7 +654,7 @@ const Index = () => {
                       if (!validateForm()) return;
                       setCheckoutStep("details");
                     }}
-                    disabled={grandTotalItems < 1 || totalQuantity > 12}
+                    disabled={grandTotalItems < 1 || totalQuantity > 10}
                     className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                   >
                     Continue to details →
@@ -707,7 +662,7 @@ const Index = () => {
                 ) : (
                   <Button
                     onClick={handleBuyNow}
-                    disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
+                    disabled={grandTotalItems < 1 || totalQuantity > 10 || processing}
                     className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                   >
                     {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
@@ -732,7 +687,7 @@ const Index = () => {
                 {/* Info Message */}
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                    Maximum 12 Rakhis per order
+                    Maximum 10 Rakhis per order
                   </p>
                 </div>
               </CardContent>
@@ -879,26 +834,9 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
-                    {loading ? (
-                      <span className="text-xs text-muted-foreground">Loading...</span>
-                    ) : isSoldOut(inventory.chakra) ? (
-                      <span className="text-xs text-red-500 font-medium">SOLD OUT</span>
-                    ) : (
-                      <span className="text-xs text-green-600">
-                        {getAvailableQuantity(inventory.chakra)} Available
-                      </span>
-                    )}
+                    <span className="text-xs text-green-600">50 Available</span>
                   </div>
-                  {loading ? (
-                    <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-sm font-medium">
-                      Loading...
-                    </div>
-                  ) : isSoldOut(inventory.chakra) ? (
-                    <div className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-sm font-medium">
-                      SOLD OUT
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                       <button 
                         onClick={() => adjustQuantity("rakhi1", -1)}
                         disabled={rakhi1Quantity === 0}
@@ -909,39 +847,21 @@ const Index = () => {
                       <span className="w-8 text-center font-semibold">{rakhi1Quantity}</span>
                       <button 
                         onClick={() => adjustQuantity("rakhi1", 1)}
-                        disabled={rakhi1Quantity >= getMaxSelectableQuantity("rakhi1") || totalQuantity === 12}
+                        disabled={totalQuantity >= 10}
                         className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                       >
                         <Plus className="h-4 w-4 text-primary" />
                       </button>
-                    </div>
-                  )}
+                  </div>
                 </div>
 
                 {/* Rakhi 2 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Prosperity Rakhi</span>
-                    {loading ? (
-                      <span className="text-xs text-muted-foreground">Loading...</span>
-                    ) : isSoldOut(inventory.prosperity) ? (
-                      <span className="text-xs text-red-500 font-medium">SOLD OUT</span>
-                    ) : (
-                      <span className="text-xs text-green-600">
-                        {getAvailableQuantity(inventory.prosperity)} Available
-                      </span>
-                    )}
+                    <span className="text-xs text-green-600">50 Available</span>
                   </div>
-                  {loading ? (
-                    <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-sm font-medium">
-                      Loading...
-                    </div>
-                  ) : isSoldOut(inventory.prosperity) ? (
-                    <div className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-sm font-medium">
-                      SOLD OUT
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                       <button 
                         onClick={() => adjustQuantity("rakhi2", -1)}
                         disabled={rakhi2Quantity === 0}
@@ -952,20 +872,19 @@ const Index = () => {
                       <span className="w-8 text-center font-semibold">{rakhi2Quantity}</span>
                       <button 
                         onClick={() => adjustQuantity("rakhi2", 1)}
-                        disabled={rakhi2Quantity >= getMaxSelectableQuantity("rakhi2") || totalQuantity === 12}
+                        disabled={totalQuantity >= 10}
                         className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                       >
                         <Plus className="h-4 w-4 text-primary" />
                       </button>
-                    </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Test Rakhi */}
-                <div className="flex items-center justify-between p-4 border border-dashed border-primary/50 rounded-lg bg-primary/5">
+                {/* Ho'oponopono Rakhi */}
+                <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
-                    <span className="font-medium text-foreground">🧪 Test Rakhi</span>
-                    <span className="text-xs text-muted-foreground">₹50 (for payment testing)</span>
+                    <span className="font-medium text-foreground">Ho'oponopono Rakhi</span>
+                    <span className="text-xs text-green-600">50 Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -977,8 +896,8 @@ const Index = () => {
                     </button>
                     <span className="w-8 text-center font-semibold">{testQuantity}</span>
                     <button
-                      onClick={() => setTestQuantity(Math.min(5, testQuantity + 1))}
-                      disabled={testQuantity >= 5}
+                      onClick={() => setTestQuantity(testQuantity + 1)}
+                      disabled={totalQuantity >= 10}
                       className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4 text-primary" />
@@ -995,12 +914,6 @@ const Index = () => {
                     <span>Rakhis ({totalQuantity})</span>
                     <span>₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
                   </div>
-                  {testQuantity > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span>Test Rakhi ({testQuantity})</span>
-                      <span>₹{testQuantity * 50}</span>
-                    </div>
-                  )}
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-semibold">
                       <span>Amount to be paid:</span>
@@ -1031,7 +944,7 @@ const Index = () => {
                       if (!validateForm()) return;
                       setCheckoutStep("details");
                     }}
-                    disabled={grandTotalItems < 1 || totalQuantity > 12}
+                    disabled={grandTotalItems < 1 || totalQuantity > 10}
                     className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                   >
                     Continue to details →
@@ -1039,7 +952,7 @@ const Index = () => {
                 ) : (
                   <Button
                     onClick={handleBuyNow}
-                    disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
+                    disabled={grandTotalItems < 1 || totalQuantity > 10 || processing}
                     className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                   >
                     {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
@@ -1059,7 +972,7 @@ const Index = () => {
                 {/* Info Message */}
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                    Maximum 12 Rakhis per order
+                    Maximum 10 Rakhis per order
                   </p>
                 </div>
               </CardContent>
