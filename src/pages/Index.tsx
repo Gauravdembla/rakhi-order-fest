@@ -24,6 +24,10 @@ const Index = () => {
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
   const [processing, setProcessing] = useState(false);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
@@ -185,6 +189,21 @@ const Index = () => {
       .regex(/^[6-9]\d{9}$/, {
         message: "Enter a valid 10-digit Indian mobile number",
       }),
+    address1: z
+      .string()
+      .trim()
+      .nonempty({ message: "Please enter Address Line 1" })
+      .max(200),
+    address2: z.string().trim().max(200).optional().or(z.literal("")),
+    city: z
+      .string()
+      .trim()
+      .nonempty({ message: "Please enter your city" })
+      .max(80),
+    pincode: z
+      .string()
+      .trim()
+      .regex(/^\d{6}$/, { message: "Enter a valid 6-digit pincode" }),
   });
 
   const handleBuyNow = async () => {
@@ -194,6 +213,10 @@ const Index = () => {
       name: customerName,
       email: customerEmail,
       phone: customerPhone,
+      address1,
+      address2,
+      city,
+      pincode,
     });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message || "Please check your details");
@@ -243,6 +266,10 @@ const Index = () => {
           setCustomerName("");
           setCustomerEmail("");
           setCustomerPhone("");
+          setAddress1("");
+          setAddress2("");
+          setCity("");
+          setPincode("");
         },
         (err) => {
           setProcessing(false);
