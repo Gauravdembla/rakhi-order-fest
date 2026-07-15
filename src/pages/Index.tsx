@@ -401,7 +401,7 @@ const Index = () => {
                         <img 
                           src={image} 
                           alt={`Rakhi ${index + 1}`}
-                          className="w-full h-48 md:h-64 object-cover rounded-lg shadow-lg border-2 border-primary/20"
+                          className="w-full h-auto max-h-64 object-contain rounded-lg shadow-lg border-2 border-primary/20 bg-muted/20"
                           loading="lazy"
                         />
                       </CarouselItem>
