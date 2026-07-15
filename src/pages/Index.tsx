@@ -586,7 +586,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.chakra} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                       <button 
@@ -611,7 +611,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Prosperity Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.prosperity} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                       <button 
@@ -636,7 +636,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Ho'oponopono Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.hooponopono} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -876,7 +876,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.chakra} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                       <button 
@@ -901,7 +901,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Prosperity Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.prosperity} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                       <button 
@@ -926,7 +926,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Ho'oponopono Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.hooponopono} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
