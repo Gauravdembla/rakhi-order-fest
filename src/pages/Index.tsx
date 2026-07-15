@@ -25,6 +25,7 @@ import hooponoBanner from "@/assets/hoopono-banner.webp.asset.json";
 import pricingBanner from "@/assets/pricing-banner.webp.asset.json";
 import threeRakhisBanner from "@/assets/three-rakhis-banner.webp.asset.json";
 import prosperityBanner from "@/assets/prosperity-banner.webp.asset.json";
+import { supabase } from "@/integrations/supabase/client";
 
 type RakhiDescProps = {
   emoji: string;
