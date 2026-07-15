@@ -14,7 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          address1: string | null
+          address2: string | null
+          amount: number
+          chakra_qty: number
+          city: string | null
+          client_order_id: string
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          fan_id: string | null
+          hooponopono_qty: number
+          id: string
+          pincode: string | null
+          prosperity_qty: number
+          raw_payload: Json | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_signature: string | null
+          status: string
+          total_qty: number
+        }
+        Insert: {
+          address1?: string | null
+          address2?: string | null
+          amount: number
+          chakra_qty?: number
+          city?: string | null
+          client_order_id: string
+          created_at?: string
+          currency?: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          fan_id?: string | null
+          hooponopono_qty?: number
+          id?: string
+          pincode?: string | null
+          prosperity_qty?: number
+          raw_payload?: Json | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          status?: string
+          total_qty?: number
+        }
+        Update: {
+          address1?: string | null
+          address2?: string | null
+          amount?: number
+          chakra_qty?: number
+          city?: string | null
+          client_order_id?: string
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          fan_id?: string | null
+          hooponopono_qty?: number
+          id?: string
+          pincode?: string | null
+          prosperity_qty?: number
+          raw_payload?: Json | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          status?: string
+          total_qty?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
