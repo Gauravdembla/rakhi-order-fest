@@ -474,10 +474,10 @@ const Index = () => {
                 {/* Buy Button */}
                 <Button 
                   onClick={handleBuyNow}
-                  disabled={totalQuantity < 1 || totalQuantity > 12}
+                  disabled={totalQuantity < 1 || totalQuantity > 12 || processing}
                   className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                 >
-                  Proceed to pay ₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}
+                  {processing ? "Processing..." : `Proceed to pay ₹${totalQuantity > 0 ? getPricing(totalQuantity) : 0}`}
                 </Button>
 
                 {/* Back Button */}
@@ -682,10 +682,10 @@ const Index = () => {
                 {/* Buy Button */}
                 <Button 
                   onClick={handleBuyNow}
-                  disabled={totalQuantity < 1 || totalQuantity > 12}
+                  disabled={totalQuantity < 1 || totalQuantity > 12 || processing}
                   className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                 >
-                  Proceed to pay ₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}
+                  {processing ? "Processing..." : `Proceed to pay ₹${totalQuantity > 0 ? getPricing(totalQuantity) : 0}`}
                 </Button>
 
                 {/* Info Message */}
