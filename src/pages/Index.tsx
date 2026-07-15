@@ -33,10 +33,6 @@ const Index = () => {
   const [processing, setProcessing] = useState(false);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
-  const grandTotalItems = totalQuantity + testQuantity;
-  const totalAmount =
-    (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
-
   const countryCodes = [
     { code: "+91", label: "🇮🇳 +91" },
     { code: "+1", label: "🇺🇸 +1" },
@@ -57,6 +53,10 @@ const Index = () => {
     };
     return prices[quantity as keyof typeof prices] || 0;
   };
+
+  const grandTotalItems = totalQuantity + testQuantity;
+  const totalAmount =
+    (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
 
   const rakhiImages = [
     "/lovable-uploads/2c76ff5a-d797-43bc-a6c8-379c00466d0f.png",
