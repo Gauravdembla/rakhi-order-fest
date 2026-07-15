@@ -154,12 +154,16 @@ export async function createPaymentSessionWithConflictRecovery(
     return { session, effectiveConfig: config };
   }
 
+  // participant.phone comes back as digits (e.g. "919871324442"), already includes
+  // the country code. Just prepend "+" — do NOT concatenate dialCode again.
+  const rebuiltPhone = participant.phone
+    ? `+${participant.phone.replace(/\D+/g, "")}`
+    : config.phone;
+
   const retryConfig: PaymentConfig = {
     ...config,
     email: participant.fanEmail || config.email,
-    phone: participant.phone
-      ? (participant.dialCode ? `+${participant.dialCode}${participant.phone.replace(new RegExp(`^${participant.dialCode}`), "")}` : `+${participant.phone}`)
-      : config.phone,
+    phone: rebuiltPhone,
     fanId: participant.fanId,
   };
 
