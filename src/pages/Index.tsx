@@ -1026,7 +1026,7 @@ const Index = () => {
       {/* Social proof floating toast */}
       <div
         aria-live="polite"
-        className={`fixed bottom-4 left-4 z-50 max-w-[85vw] sm:max-w-xs transition-all duration-500 ${
+        className={`fixed bottom-20 left-4 lg:bottom-4 z-50 max-w-[85vw] sm:max-w-xs transition-all duration-500 ${
           socialProof.visible && socialProof.name
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-4 pointer-events-none"
