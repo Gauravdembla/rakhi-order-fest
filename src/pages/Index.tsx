@@ -13,6 +13,13 @@ import {
   createPaymentSessionWithConflictRecovery,
   openRazorpayCheckout,
 } from "@/services/razorpayService";
+import rakhi1 from "@/assets/rakhi-1.webp.asset.json";
+import rakhi2 from "@/assets/rakhi-2.webp.asset.json";
+import rakhi3 from "@/assets/rakhi-3.webp.asset.json";
+import rakhi4 from "@/assets/rakhi-4.webp.asset.json";
+import rakhi5 from "@/assets/rakhi-5.webp.asset.json";
+import rakhi6 from "@/assets/rakhi-6.webp.asset.json";
+import rakhi7 from "@/assets/rakhi-7.webp.asset.json";
 
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
@@ -60,10 +67,13 @@ const Index = () => {
     (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
 
   const rakhiImages = [
-    "/lovable-uploads/2c76ff5a-d797-43bc-a6c8-379c00466d0f.png",
-    "/lovable-uploads/caa9bb77-fa09-494b-b99b-9fc64bc2a3aa.png", 
-    "/lovable-uploads/4988f179-e576-41e3-aa28-6a8d99ac9a29.png",
-    "/lovable-uploads/f9ec6c91-83be-4589-835a-45de816fd0b7.png"
+    rakhi1.url,
+    rakhi2.url,
+    rakhi3.url,
+    rakhi4.url,
+    rakhi5.url,
+    rakhi6.url,
+    rakhi7.url,
   ];
 
   // Google Sheets integration with multiple fallback methods
@@ -384,6 +394,15 @@ const Index = () => {
                   </p>
                 </div>
                 <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">🌺 Ho'oponopono Rakhi</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    Infused with the healing power of Ho'oponopono, this sacred thread carries the energy of forgiveness, love, gratitude, and inner peace. Each crystal represents one of the five divine phrases, helping you release the past, heal the heart, and restore harmony within and in your relationships.
+                  </p>
+                  <p className="text-muted-foreground text-sm leading-relaxed italic mt-2">
+                    ✨ May this rakhi remind you that healing begins with you, and love transforms everything. 💗
+                  </p>
+                </div>
+                <div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">💰 Prosperity Rakhi</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being. Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
@@ -694,6 +713,15 @@ const Index = () => {
                 <h3 className="text-xl font-semibold text-foreground mb-3">🌈 7 Chakra's Rakhi</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection. Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit. A sacred thread that radiates positivity and peace.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-foreground mb-3">🌺 Ho'oponopono Rakhi</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Infused with the healing power of Ho'oponopono, this sacred thread carries the energy of forgiveness, love, gratitude, and inner peace. Each crystal represents one of the five divine phrases, helping you release the past, heal the heart, and restore harmony within and in your relationships.
+                </p>
+                <p className="text-muted-foreground leading-relaxed italic mt-3">
+                  ✨ May this rakhi remind you that healing begins with you, and love transforms everything. 💗
                 </p>
               </div>
               <div>
