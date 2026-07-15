@@ -199,19 +199,9 @@ const Index = () => {
 
   // (Razorpay preload removed — using external redirect links now)
 
-  // Map of total amount (INR) → external checkout URL
-  const CHECKOUT_URLS: Record<number, string> = {
-    299: "https://learn.angelsonearthhub.com/web/checkout/6a5795ff64e97c6326c52dd1",
-    499: "https://learn.angelsonearthhub.com/web/checkout/6a57964311f42d65ff57df4b",
-    699: "https://learn.angelsonearthhub.com/web/checkout/6a57966935d0cf65725321bb",
-    899: "https://learn.angelsonearthhub.com/web/checkout/6a5796798cc66876f8f11c52",
-    1099: "https://learn.angelsonearthhub.com/web/checkout/6a5796925e14a7c8f97439e7",
-    1299: "https://learn.angelsonearthhub.com/web/checkout/6a5796b764e97c6326c56fa1",
-    1499: "https://learn.angelsonearthhub.com/web/checkout/6a5796ca8cc66876f8f13288",
-    1699: "https://learn.angelsonearthhub.com/web/checkout/6a5796e0b0ea80d0414dd6c9",
-    1899: "https://learn.angelsonearthhub.com/web/checkout/6a5796f511f42d65ff5822cb",
-    1999: "https://learn.angelsonearthhub.com/web/checkout/6a5797245bac5bd6753064c5",
-  };
+  // Single Razorpay payment page — amount / name / email / phone appended as query params
+  const CHECKOUT_BASE_URL =
+    "https://pages.razorpay.com/pl_TDoc8OeqSjFVvD/view";
 
   // Helper functions for inventory
   const getAvailableQuantity = (quantity: number) => {
@@ -299,13 +289,7 @@ const Index = () => {
       return;
     }
 
-    const checkoutUrl = CHECKOUT_URLS[amount];
-    if (!checkoutUrl) {
-      setError(
-        `No checkout link configured for ₹${amount}. Please adjust your quantity.`,
-      );
-      return;
-    }
+    const checkoutUrl = CHECKOUT_BASE_URL;
 
     setProcessing(true);
     setError("");
@@ -363,12 +347,12 @@ const Index = () => {
         },
       }).catch((e) => console.warn("[record-order] failed:", e));
 
-      // Redirect the user to the configured external checkout page,
-      // prefilling name / email / phone (phone without country code).
+      // Redirect to Razorpay payment page, prefilling name / email / phone / amount
       const redirectUrl = new URL(checkoutUrl);
       redirectUrl.searchParams.set("name", parsed.data.name);
       redirectUrl.searchParams.set("email", parsed.data.email);
       redirectUrl.searchParams.set("phone", parsed.data.phone);
+      redirectUrl.searchParams.set("amount", String(amount));
       window.location.href = redirectUrl.toString();
     } catch (e) {
       console.error("[handleBuyNow] error", e);
