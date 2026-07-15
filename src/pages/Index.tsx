@@ -441,9 +441,7 @@ const Index = () => {
     setProcessing(true);
     setError("");
     try {
-      const clientOrderId = `rakhi_${Date.now()}_${Math.random()
-        .toString(36)
-        .slice(2, 8)}_C${rakhi1Quantity}_P${rakhi2Quantity}_T${testQuantity}`;
+      const clientOrderId = clientOrderIdRef.current;
 
       // Fire webhook to Pabbly (fire-and-forget) as soon as user proceeds to payment
       void supabase.functions.invoke("notify-order-webhook", {
