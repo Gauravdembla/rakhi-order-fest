@@ -17,6 +17,7 @@ import {
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
   const [rakhi2Quantity, setRakhi2Quantity] = useState<number>(0);
+  const [testQuantity, setTestQuantity] = useState<number>(0);
   const [error, setError] = useState<string>("");
   const [currentSlide, setCurrentSlide] = useState<number>(0);
   const [inventory, setInventory] = useState({ chakra: 0, prosperity: 0 });
@@ -24,6 +25,7 @@ const Index = () => {
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [countryCode, setCountryCode] = useState<string>("+91");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [city, setCity] = useState("");
@@ -31,6 +33,21 @@ const Index = () => {
   const [processing, setProcessing] = useState(false);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
+  const grandTotalItems = totalQuantity + testQuantity;
+  const totalAmount =
+    (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
+
+  const countryCodes = [
+    { code: "+91", label: "🇮🇳 +91" },
+    { code: "+1", label: "🇺🇸 +1" },
+    { code: "+44", label: "🇬🇧 +44" },
+    { code: "+971", label: "🇦🇪 +971" },
+    { code: "+61", label: "🇦🇺 +61" },
+    { code: "+65", label: "🇸🇬 +65" },
+    { code: "+49", label: "🇩🇪 +49" },
+    { code: "+33", label: "🇫🇷 +33" },
+    { code: "+81", label: "🇯🇵 +81" },
+  ];
   
   const getPricing = (quantity: number) => {
     const prices = { 
