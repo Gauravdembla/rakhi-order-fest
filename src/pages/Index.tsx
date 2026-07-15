@@ -23,6 +23,7 @@ import rakhi7 from "@/assets/rakhi-7.webp.asset.json";
 import chakraBanner from "@/assets/chakra-banner.webp.asset.json";
 import hooponoBanner from "@/assets/hoopono-banner.webp.asset.json";
 import pricingBanner from "@/assets/pricing-banner.webp.asset.json";
+import threeRakhisBanner from "@/assets/three-rakhis-banner.webp.asset.json";
 
 type RakhiDescProps = {
   emoji: string;
@@ -97,6 +98,7 @@ const Index = () => {
     (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
 
   const rakhiImages = [
+    threeRakhisBanner.url,
     chakraBanner.url,
     hooponoBanner.url,
     pricingBanner.url,
@@ -400,7 +402,7 @@ const Index = () => {
 
               {/* Image Carousel */}
               <div className="mb-6">
-                <Carousel className="w-full">
+                <Carousel className="w-full" opts={{ loop: true }}>
                   <CarouselContent>
                     {rakhiImages.map((image, index) => (
                       <CarouselItem key={index}>
@@ -736,7 +738,7 @@ const Index = () => {
 
             {/* Image Carousel */}
             <div className="mb-8">
-              <Carousel className="w-full">
+              <Carousel className="w-full" opts={{ loop: true }}>
                 <CarouselContent>
                   {rakhiImages.map((image, index) => (
                     <CarouselItem key={index}>
