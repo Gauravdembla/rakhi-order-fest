@@ -63,31 +63,49 @@ async function findParticipant({ email, phone }: Lookup) {
   const token = await getTagmangoToken();
   const mangoId = Deno.env.get("TAGMANGO_MANGO_ID");
 
-  const body: Record<string, unknown> = {
+  const searchTerm = e || p;
+  const baseBody: Record<string, unknown> = {
     page: 1,
     pageSize: 50,
     type: "all",
     affiliateType: "all",
     spreadSubscribers: true,
-    search: e || p,
   };
-  if (mangoId) body.mangoes = [mangoId];
+  if (mangoId) baseBody.mangoes = [mangoId];
 
-  const res = await fetch(`${TM_BASE}/v2/subscribers`, {
-    method: "POST",
-    headers: tmHeaders(token),
-    body: JSON.stringify(body),
-  });
+  // TagMango's schema for this endpoint varies — try several known field names.
+  const candidateBodies: Record<string, unknown>[] = [
+    { ...baseBody, searchQuery: searchTerm },
+    { ...baseBody, searchText: searchTerm },
+    { ...baseBody, q: searchTerm },
+    { ...baseBody, keyword: searchTerm },
+    { ...baseBody, filter: { search: searchTerm } },
+    { ...baseBody }, // last resort: no search, rely on client-side match in first page
+  ];
 
-  if (res.status === 401) {
-    throw new Error("TagMango token expired — refresh Cloudflare KV key `tagmango_token`");
+  let json: any = null;
+  let lastErr = "";
+  for (const body of candidateBodies) {
+    const res = await fetch(`${TM_BASE}/v2/subscribers`, {
+      method: "POST",
+      headers: tmHeaders(token),
+      body: JSON.stringify(body),
+    });
+    if (res.status === 401) {
+      throw new Error("TagMango token expired — refresh Cloudflare KV key `tagmango_token`");
+    }
+    if (res.ok) {
+      json = await res.json();
+      console.log("[lookup] accepted body keys:", Object.keys(body).join(","));
+      break;
+    }
+    lastErr = `${res.status}: ${(await res.text()).slice(0, 200)}`;
+    console.log("[lookup] rejected body keys:", Object.keys(body).join(","), "→", lastErr);
   }
-  if (!res.ok) {
-    const text = (await res.text()).slice(0, 300);
-    throw new Error(`TagMango ${res.status}: ${text}`);
+  if (!json) {
+    throw new Error(`TagMango all search variants failed. Last: ${lastErr}`);
   }
 
-  const json = await res.json();
   const subs: any[] =
     json?.result?.subscribers ?? json?.result ?? json?.subscribers ?? [];
 
