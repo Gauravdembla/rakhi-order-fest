@@ -17,6 +17,7 @@ import {
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
   const [rakhi2Quantity, setRakhi2Quantity] = useState<number>(0);
+  const [testQuantity, setTestQuantity] = useState<number>(0);
   const [error, setError] = useState<string>("");
   const [currentSlide, setCurrentSlide] = useState<number>(0);
   const [inventory, setInventory] = useState({ chakra: 0, prosperity: 0 });
@@ -24,6 +25,7 @@ const Index = () => {
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [countryCode, setCountryCode] = useState<string>("+91");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [city, setCity] = useState("");
@@ -31,6 +33,17 @@ const Index = () => {
   const [processing, setProcessing] = useState(false);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
+  const countryCodes = [
+    { code: "+91", label: "🇮🇳 +91" },
+    { code: "+1", label: "🇺🇸 +1" },
+    { code: "+44", label: "🇬🇧 +44" },
+    { code: "+971", label: "🇦🇪 +971" },
+    { code: "+61", label: "🇦🇺 +61" },
+    { code: "+65", label: "🇸🇬 +65" },
+    { code: "+49", label: "🇩🇪 +49" },
+    { code: "+33", label: "🇫🇷 +33" },
+    { code: "+81", label: "🇯🇵 +81" },
+  ];
   
   const getPricing = (quantity: number) => {
     const prices = { 
@@ -40,6 +53,10 @@ const Index = () => {
     };
     return prices[quantity as keyof typeof prices] || 0;
   };
+
+  const grandTotalItems = totalQuantity + testQuantity;
+  const totalAmount =
+    (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
 
   const rakhiImages = [
     "/lovable-uploads/2c76ff5a-d797-43bc-a6c8-379c00466d0f.png",
@@ -160,8 +177,8 @@ const Index = () => {
 
 
   const validateForm = () => {
-    if (totalQuantity < 1) {
-      setError("Please select at least 1 rakhi to proceed.");
+    if (grandTotalItems < 1) {
+      setError("Please select at least 1 item to proceed.");
       return false;
     }
     if (totalQuantity > 12) {
@@ -186,8 +203,8 @@ const Index = () => {
     phone: z
       .string()
       .trim()
-      .regex(/^[6-9]\d{9}$/, {
-        message: "Enter a valid 10-digit Indian mobile number",
+      .regex(/^\d{6,15}$/, {
+        message: "Enter a valid mobile number",
       }),
     address1: z
       .string()
@@ -223,7 +240,7 @@ const Index = () => {
       return;
     }
 
-    const amount = getPricing(totalQuantity);
+    const amount = totalAmount;
     if (!amount) {
       setError("Invalid amount. Please adjust quantity.");
       return;
@@ -235,13 +252,13 @@ const Index = () => {
       await ensureRazorpayScript();
       const clientOrderId = `rakhi_${Date.now()}_${Math.random()
         .toString(36)
-        .slice(2, 8)}_C${rakhi1Quantity}_P${rakhi2Quantity}`;
+        .slice(2, 8)}_C${rakhi1Quantity}_P${rakhi2Quantity}_T${testQuantity}`;
 
       const config = {
         amount,
         name: parsed.data.name,
         email: parsed.data.email,
-        phone: parsed.data.phone,
+        phone: `${countryCode}${parsed.data.phone}`,
         clientOrderId,
         address1: parsed.data.address1,
         address2: parsed.data.address2 || "",
@@ -267,6 +284,7 @@ const Index = () => {
           });
           setRakhi1Quantity(0);
           setRakhi2Quantity(0);
+          setTestQuantity(0);
           setCustomerName("");
           setCustomerEmail("");
           setCustomerPhone("");
@@ -390,41 +408,30 @@ const Index = () => {
                 {/* Customer & Address Details */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-foreground">Your Details</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="name-m">Full Name</Label>
-                    <Input id="name-m" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Enter your full name" maxLength={100} />
-                  </div>
-                  <div className="grid grid-cols-1 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="email-m">Email</Label>
-                      <Input id="email-m" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="you@example.com" maxLength={255} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone-m">Mobile</Label>
-                      <Input id="phone-m" type="tel" inputMode="numeric" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))} placeholder="10-digit mobile number" maxLength={10} />
-                    </div>
+                  <Input id="name-m" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Full Name" maxLength={100} />
+                  <Input id="email-m" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="Email" maxLength={255} />
+                  <div className="flex gap-2">
+                    <select
+                      aria-label="Country code"
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      className="h-10 rounded-md border border-input bg-background px-2 text-sm shrink-0"
+                    >
+                      {countryCodes.map((c) => (
+                        <option key={c.code} value={c.code}>{c.label}</option>
+                      ))}
+                    </select>
+                    <Input id="phone-m" type="tel" inputMode="numeric" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))} placeholder="Mobile Number" maxLength={15} />
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <h4 className="font-medium text-foreground">Shipping Address</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="addr1-m">Address Line 1</Label>
-                    <Input id="addr1-m" value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="House / Flat / Street" maxLength={200} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="addr2-m">Address Line 2 <span className="text-xs text-muted-foreground">(optional)</span></Label>
-                    <Input id="addr2-m" value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Landmark / Area" maxLength={200} />
-                  </div>
+                  <Input id="addr1-m" value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="Address Line 1" maxLength={200} />
+                  <Input id="addr2-m" value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Address Line 2 (Optional)" maxLength={200} />
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="city-m">City</Label>
-                      <Input id="city-m" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" maxLength={80} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pin-m">Pincode</Label>
-                      <Input id="pin-m" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="6-digit pincode" maxLength={6} />
-                    </div>
+                    <Input id="city-m" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" maxLength={80} />
+                    <Input id="pin-m" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="Pincode" maxLength={6} />
                   </div>
                 </div>
 
@@ -514,6 +521,31 @@ const Index = () => {
                   )}
                 </div>
 
+                {/* Test Rakhi */}
+                <div className="flex items-center justify-between p-4 border border-dashed border-primary/50 rounded-lg bg-primary/5">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">🧪 Test Rakhi</span>
+                    <span className="text-xs text-muted-foreground">₹50 (for payment testing)</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setTestQuantity(Math.max(0, testQuantity - 1))}
+                      disabled={testQuantity === 0}
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                    >
+                      <Minus className="h-4 w-4 text-primary" />
+                    </button>
+                    <span className="w-8 text-center font-semibold">{testQuantity}</span>
+                    <button
+                      onClick={() => setTestQuantity(Math.min(5, testQuantity + 1))}
+                      disabled={testQuantity >= 5}
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                    >
+                      <Plus className="h-4 w-4 text-primary" />
+                    </button>
+                  </div>
+                </div>
+
                 {/* Order Summary */}
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
                   <h4 className="font-medium text-foreground">Order Summary</h4>
@@ -521,17 +553,24 @@ const Index = () => {
                     <span>Rakhis ({totalQuantity})</span>
                     <span>₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
                   </div>
+                  {testQuantity > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Test Rakhi ({testQuantity})</span>
+                      <span>₹{testQuantity * 50}</span>
+                    </div>
+                  )}
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-semibold">
                       <span>Amount to be paid:</span>
-                      <span className="text-primary">₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
+                      <span className="text-primary">₹{totalAmount}</span>
                     </div>
                   </div>
-                  {totalQuantity > 0 && (
-                    <div className="text-center mt-2">
+                  {grandTotalItems > 0 && (
+                    <div className="text-center mt-2 space-y-1">
                       <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
                         🚚 Shipping Charges Included
                       </span>
+                      <div className="text-[10px] text-muted-foreground">(India Only)</div>
                     </div>
                   )}
                 </div>
@@ -546,10 +585,10 @@ const Index = () => {
                 {/* Buy Button */}
                 <Button 
                   onClick={handleBuyNow}
-                  disabled={totalQuantity < 1 || totalQuantity > 12 || processing}
+                  disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
                   className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                 >
-                  {processing ? "Processing..." : `Proceed to pay ₹${totalQuantity > 0 ? getPricing(totalQuantity) : 0}`}
+                  {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
                 </Button>
 
                 {/* Back Button */}
@@ -639,41 +678,32 @@ const Index = () => {
                 {/* Customer & Address Details */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-foreground">Your Details</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="name-d">Full Name</Label>
-                    <Input id="name-d" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Enter your full name" maxLength={100} />
-                  </div>
+                  <Input id="name-d" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Full Name" maxLength={100} />
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="email-d">Email</Label>
-                      <Input id="email-d" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="you@example.com" maxLength={255} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone-d">Mobile</Label>
-                      <Input id="phone-d" type="tel" inputMode="numeric" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))} placeholder="10-digit mobile" maxLength={10} />
+                    <Input id="email-d" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="Email" maxLength={255} />
+                    <div className="flex gap-2">
+                      <select
+                        aria-label="Country code"
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="h-10 rounded-md border border-input bg-background px-2 text-sm shrink-0"
+                      >
+                        {countryCodes.map((c) => (
+                          <option key={c.code} value={c.code}>{c.label}</option>
+                        ))}
+                      </select>
+                      <Input id="phone-d" type="tel" inputMode="numeric" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))} placeholder="Mobile Number" maxLength={15} />
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <h4 className="font-medium text-foreground">Shipping Address</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="addr1-d">Address Line 1</Label>
-                    <Input id="addr1-d" value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="House / Flat / Street" maxLength={200} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="addr2-d">Address Line 2 <span className="text-xs text-muted-foreground">(optional)</span></Label>
-                    <Input id="addr2-d" value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Landmark / Area" maxLength={200} />
-                  </div>
+                  <Input id="addr1-d" value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="Address Line 1" maxLength={200} />
+                  <Input id="addr2-d" value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Address Line 2 (Optional)" maxLength={200} />
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="city-d">City</Label>
-                      <Input id="city-d" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" maxLength={80} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pin-d">Pincode</Label>
-                      <Input id="pin-d" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="6-digit pincode" maxLength={6} />
-                    </div>
+                    <Input id="city-d" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" maxLength={80} />
+                    <Input id="pin-d" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="Pincode" maxLength={6} />
                   </div>
                 </div>
 
@@ -763,6 +793,31 @@ const Index = () => {
                   )}
                 </div>
 
+                {/* Test Rakhi */}
+                <div className="flex items-center justify-between p-4 border border-dashed border-primary/50 rounded-lg bg-primary/5">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">🧪 Test Rakhi</span>
+                    <span className="text-xs text-muted-foreground">₹50 (for payment testing)</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setTestQuantity(Math.max(0, testQuantity - 1))}
+                      disabled={testQuantity === 0}
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                    >
+                      <Minus className="h-4 w-4 text-primary" />
+                    </button>
+                    <span className="w-8 text-center font-semibold">{testQuantity}</span>
+                    <button
+                      onClick={() => setTestQuantity(Math.min(5, testQuantity + 1))}
+                      disabled={testQuantity >= 5}
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                    >
+                      <Plus className="h-4 w-4 text-primary" />
+                    </button>
+                  </div>
+                </div>
+
                 {/* Order Summary */}
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
                   <h4 className="font-medium text-foreground">Order Summary</h4>
@@ -770,17 +825,24 @@ const Index = () => {
                     <span>Rakhis ({totalQuantity})</span>
                     <span>₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
                   </div>
+                  {testQuantity > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Test Rakhi ({testQuantity})</span>
+                      <span>₹{testQuantity * 50}</span>
+                    </div>
+                  )}
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-semibold">
                       <span>Amount to be paid:</span>
-                      <span className="text-primary">₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
+                      <span className="text-primary">₹{totalAmount}</span>
                     </div>
                   </div>
-                  {totalQuantity > 0 && (
-                    <div className="text-center mt-2">
+                  {grandTotalItems > 0 && (
+                    <div className="text-center mt-2 space-y-1">
                       <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
                         🚚 Shipping Charges Included
                       </span>
+                      <div className="text-[10px] text-muted-foreground">(India Only)</div>
                     </div>
                   )}
                 </div>
@@ -795,10 +857,10 @@ const Index = () => {
                 {/* Buy Button */}
                 <Button 
                   onClick={handleBuyNow}
-                  disabled={totalQuantity < 1 || totalQuantity > 12 || processing}
+                  disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
                   className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                 >
-                  {processing ? "Processing..." : `Proceed to pay ₹${totalQuantity > 0 ? getPricing(totalQuantity) : 0}`}
+                  {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
                 </Button>
 
                 {/* Info Message */}
