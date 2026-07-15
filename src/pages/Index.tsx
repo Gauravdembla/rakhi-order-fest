@@ -366,8 +366,13 @@ const Index = () => {
         },
       }).catch((e) => console.warn("[record-order] failed:", e));
 
-      // Redirect the user to the configured external checkout page
-      window.location.href = checkoutUrl;
+      // Redirect the user to the configured external checkout page,
+      // prefilling name / email / phone (phone without country code).
+      const redirectUrl = new URL(checkoutUrl);
+      redirectUrl.searchParams.set("name", parsed.data.name);
+      redirectUrl.searchParams.set("email", parsed.data.email);
+      redirectUrl.searchParams.set("phone", parsed.data.phone);
+      window.location.href = redirectUrl.toString();
     } catch (e) {
       console.error("[handleBuyNow] error", e);
       setError("Something went wrong. Please try again.");
