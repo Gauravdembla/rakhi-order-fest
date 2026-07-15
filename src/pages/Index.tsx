@@ -515,7 +515,7 @@ const Index = () => {
                 <RakhiDescription
                   emoji="🌈"
                   title="7 Chakra's Rakhi"
-                  short="Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection."
+                  short="Harmony, healing & divine protection."
                   more={
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit.
@@ -525,7 +525,7 @@ const Index = () => {
                 <RakhiDescription
                   emoji="🌺"
                   title="Ho'oponopono Rakhi"
-                  short="Infused with the healing power of Ho'oponopono, this sacred thread carries the energy of forgiveness, love, gratitude, and inner peace."
+                  short="Forgiveness, love & inner peace."
                   more={
                     <>
                       <p className="text-muted-foreground text-sm leading-relaxed">
@@ -540,7 +540,7 @@ const Index = () => {
                 <RakhiDescription
                   emoji="💰"
                   title="Prosperity Rakhi"
-                  short="Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being."
+                  short="A blessing of abundance & good fortune."
                   more={
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
@@ -810,7 +810,7 @@ const Index = () => {
                 size="md"
                 emoji="🌈"
                 title="7 Chakra's Rakhi"
-                short="Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection."
+                short="Harmony, healing & divine protection."
                 more={
                   <p className="text-muted-foreground leading-relaxed">
                     Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit. A sacred thread that radiates positivity and peace.
@@ -821,7 +821,7 @@ const Index = () => {
                 size="md"
                 emoji="🌺"
                 title="Ho'oponopono Rakhi"
-                short="Infused with the healing power of Ho'oponopono, this sacred thread carries the energy of forgiveness, love, gratitude, and inner peace."
+                short="Forgiveness, love & inner peace."
                 more={
                   <>
                     <p className="text-muted-foreground leading-relaxed">
@@ -837,7 +837,7 @@ const Index = () => {
                 size="md"
                 emoji="💰"
                 title="Prosperity Rakhi"
-                short="Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being."
+                short="A blessing of abundance & good fortune."
                 more={
                   <p className="text-muted-foreground leading-relaxed">
                     Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
