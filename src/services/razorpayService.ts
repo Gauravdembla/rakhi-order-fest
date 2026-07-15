@@ -141,12 +141,13 @@ export async function createPaymentSessionWithConflictRecovery(
 
   console.log("[razorpayService] TagMango conflict — attempting participant lookup");
 
-  // Try by email first, then by phone.
-  let participant = await lookupTagmangoParticipant({ email: config.email });
-  if (!participant) {
-    // Strip country code prefix if present for the lookup
-    const digits = (config.phone || "").replace(/\D+/g, "");
-    participant = await lookupTagmangoParticipant({ phone: digits });
+  // Try by phone first (bare digits — edge function trims country code), then by email.
+  const digits = (config.phone || "").replace(/\D+/g, "");
+  let participant = digits
+    ? await lookupTagmangoParticipant({ phone: digits })
+    : null;
+  if (!participant && config.email) {
+    participant = await lookupTagmangoParticipant({ email: config.email });
   }
 
   if (!participant) {
