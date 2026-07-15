@@ -24,6 +24,7 @@ import chakraBanner from "@/assets/chakra-banner.webp.asset.json";
 import hooponoBanner from "@/assets/hoopono-banner.webp.asset.json";
 import pricingBanner from "@/assets/pricing-banner.webp.asset.json";
 import threeRakhisBanner from "@/assets/three-rakhis-banner.webp.asset.json";
+import prosperityBanner from "@/assets/prosperity-banner.webp.asset.json";
 
 type RakhiDescProps = {
   emoji: string;
@@ -101,7 +102,8 @@ const Index = () => {
     threeRakhisBanner.url, // 1. Hero overview of all 3 rakhis
     chakraBanner.url,      // 2. 7 Chakra product banner
     hooponoBanner.url,     // 3. Ho'oponopono product banner
-    rakhi1.url,            // 4. Lifestyle / detail shots
+    prosperityBanner.url,  // 4. Prosperity product banner
+    rakhi1.url,            // 5. Lifestyle / detail shots
     rakhi2.url,
     rakhi3.url,
     rakhi4.url,
