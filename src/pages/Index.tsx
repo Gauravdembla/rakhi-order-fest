@@ -243,6 +243,10 @@ const Index = () => {
         email: parsed.data.email,
         phone: parsed.data.phone,
         clientOrderId,
+        address1: parsed.data.address1,
+        address2: parsed.data.address2 || "",
+        city: parsed.data.city,
+        pincode: parsed.data.pincode,
       };
 
       const session = await createPaymentSession(config);
