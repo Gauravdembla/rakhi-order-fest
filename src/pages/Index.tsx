@@ -24,6 +24,10 @@ const Index = () => {
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
   const [processing, setProcessing] = useState(false);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
@@ -185,6 +189,21 @@ const Index = () => {
       .regex(/^[6-9]\d{9}$/, {
         message: "Enter a valid 10-digit Indian mobile number",
       }),
+    address1: z
+      .string()
+      .trim()
+      .nonempty({ message: "Please enter Address Line 1" })
+      .max(200),
+    address2: z.string().trim().max(200).optional().or(z.literal("")),
+    city: z
+      .string()
+      .trim()
+      .nonempty({ message: "Please enter your city" })
+      .max(80),
+    pincode: z
+      .string()
+      .trim()
+      .regex(/^\d{6}$/, { message: "Enter a valid 6-digit pincode" }),
   });
 
   const handleBuyNow = async () => {
@@ -194,6 +213,10 @@ const Index = () => {
       name: customerName,
       email: customerEmail,
       phone: customerPhone,
+      address1,
+      address2,
+      city,
+      pincode,
     });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message || "Please check your details");
@@ -220,6 +243,10 @@ const Index = () => {
         email: parsed.data.email,
         phone: parsed.data.phone,
         clientOrderId,
+        address1: parsed.data.address1,
+        address2: parsed.data.address2 || "",
+        city: parsed.data.city,
+        pincode: parsed.data.pincode,
       };
 
       const session = await createPaymentSession(config);
@@ -243,6 +270,10 @@ const Index = () => {
           setCustomerName("");
           setCustomerEmail("");
           setCustomerPhone("");
+          setAddress1("");
+          setAddress2("");
+          setCity("");
+          setPincode("");
         },
         (err) => {
           setProcessing(false);
@@ -356,6 +387,47 @@ const Index = () => {
                </CardHeader>
                <CardContent className="p-6 space-y-6">
                 
+                {/* Customer & Address Details */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-foreground">Your Details</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="name-m">Full Name</Label>
+                    <Input id="name-m" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Enter your full name" maxLength={100} />
+                  </div>
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="email-m">Email</Label>
+                      <Input id="email-m" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="you@example.com" maxLength={255} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone-m">Mobile</Label>
+                      <Input id="phone-m" type="tel" inputMode="numeric" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))} placeholder="10-digit mobile number" maxLength={10} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-medium text-foreground">Shipping Address</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="addr1-m">Address Line 1</Label>
+                    <Input id="addr1-m" value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="House / Flat / Street" maxLength={200} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="addr2-m">Address Line 2 <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                    <Input id="addr2-m" value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Landmark / Area" maxLength={200} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="city-m">City</Label>
+                      <Input id="city-m" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" maxLength={80} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="pin-m">Pincode</Label>
+                      <Input id="pin-m" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="6-digit pincode" maxLength={6} />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
@@ -464,44 +536,6 @@ const Index = () => {
                   )}
                 </div>
 
-                {/* Customer Details */}
-                <div className="space-y-3">
-                  <h4 className="font-medium text-foreground">Your Details</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="name-m">Full Name</Label>
-                    <Input
-                      id="name-m"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="Enter your full name"
-                      maxLength={100}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-m">Email</Label>
-                    <Input
-                      id="email-m"
-                      type="email"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      maxLength={255}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone-m">Phone</Label>
-                    <Input
-                      id="phone-m"
-                      type="tel"
-                      inputMode="numeric"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))}
-                      placeholder="10-digit mobile number"
-                      maxLength={10}
-                    />
-                  </div>
-                </div>
-
                 {/* Error Message */}
                 {error && (
                   <Alert variant="destructive">
@@ -602,6 +636,47 @@ const Index = () => {
               </CardHeader>
                <CardContent className="p-6 space-y-6">
                 
+                {/* Customer & Address Details */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-foreground">Your Details</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="name-d">Full Name</Label>
+                    <Input id="name-d" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Enter your full name" maxLength={100} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="email-d">Email</Label>
+                      <Input id="email-d" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="you@example.com" maxLength={255} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone-d">Mobile</Label>
+                      <Input id="phone-d" type="tel" inputMode="numeric" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))} placeholder="10-digit mobile" maxLength={10} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-medium text-foreground">Shipping Address</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="addr1-d">Address Line 1</Label>
+                    <Input id="addr1-d" value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="House / Flat / Street" maxLength={200} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="addr2-d">Address Line 2 <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                    <Input id="addr2-d" value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Landmark / Area" maxLength={200} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="city-d">City</Label>
+                      <Input id="city-d" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" maxLength={80} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="pin-d">Pincode</Label>
+                      <Input id="pin-d" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="6-digit pincode" maxLength={6} />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
@@ -708,44 +783,6 @@ const Index = () => {
                       </span>
                     </div>
                   )}
-                </div>
-
-                {/* Customer Details */}
-                <div className="space-y-3">
-                  <h4 className="font-medium text-foreground">Your Details</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="name-d">Full Name</Label>
-                    <Input
-                      id="name-d"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="Enter your full name"
-                      maxLength={100}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-d">Email</Label>
-                    <Input
-                      id="email-d"
-                      type="email"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      maxLength={255}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone-d">Phone</Label>
-                    <Input
-                      id="phone-d"
-                      type="tel"
-                      inputMode="numeric"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))}
-                      placeholder="10-digit mobile number"
-                      maxLength={10}
-                    />
-                  </div>
                 </div>
 
                 {/* Error Message */}
