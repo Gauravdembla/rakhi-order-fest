@@ -307,7 +307,8 @@ const Index = () => {
         amount,
         name: parsed.data.name,
         email: parsed.data.email,
-        phone: `${countryCode}${parsed.data.phone}`,
+        // create-session expects local number without country code
+        phone: parsed.data.phone,
         clientOrderId,
         address1: parsed.data.address1,
         address2: parsed.data.address2 || "",
