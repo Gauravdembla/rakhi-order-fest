@@ -521,6 +521,31 @@ const Index = () => {
                   )}
                 </div>
 
+                {/* Test Rakhi */}
+                <div className="flex items-center justify-between p-4 border border-dashed border-primary/50 rounded-lg bg-primary/5">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">🧪 Test Rakhi</span>
+                    <span className="text-xs text-muted-foreground">₹50 (for payment testing)</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setTestQuantity(Math.max(0, testQuantity - 1))}
+                      disabled={testQuantity === 0}
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                    >
+                      <Minus className="h-4 w-4 text-primary" />
+                    </button>
+                    <span className="w-8 text-center font-semibold">{testQuantity}</span>
+                    <button
+                      onClick={() => setTestQuantity(Math.min(5, testQuantity + 1))}
+                      disabled={testQuantity >= 5}
+                      className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center disabled:opacity-50"
+                    >
+                      <Plus className="h-4 w-4 text-primary" />
+                    </button>
+                  </div>
+                </div>
+
                 {/* Order Summary */}
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
                   <h4 className="font-medium text-foreground">Order Summary</h4>
@@ -528,17 +553,24 @@ const Index = () => {
                     <span>Rakhis ({totalQuantity})</span>
                     <span>₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
                   </div>
+                  {testQuantity > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Test Rakhi ({testQuantity})</span>
+                      <span>₹{testQuantity * 50}</span>
+                    </div>
+                  )}
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-semibold">
                       <span>Amount to be paid:</span>
-                      <span className="text-primary">₹{totalQuantity > 0 ? getPricing(totalQuantity) : 0}</span>
+                      <span className="text-primary">₹{totalAmount}</span>
                     </div>
                   </div>
-                  {totalQuantity > 0 && (
-                    <div className="text-center mt-2">
+                  {grandTotalItems > 0 && (
+                    <div className="text-center mt-2 space-y-1">
                       <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
                         🚚 Shipping Charges Included
                       </span>
+                      <div className="text-[10px] text-muted-foreground">(India Only)</div>
                     </div>
                   )}
                 </div>
@@ -553,10 +585,10 @@ const Index = () => {
                 {/* Buy Button */}
                 <Button 
                   onClick={handleBuyNow}
-                  disabled={totalQuantity < 1 || totalQuantity > 12 || processing}
+                  disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
                   className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
                 >
-                  {processing ? "Processing..." : `Proceed to pay ₹${totalQuantity > 0 ? getPricing(totalQuantity) : 0}`}
+                  {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
                 </Button>
 
                 {/* Back Button */}
