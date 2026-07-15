@@ -8,11 +8,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import { Heart, Gift, Plus, Minus, ArrowRight, RefreshCw } from "lucide-react";
 import { z } from "zod";
 import { toast } from "@/hooks/use-toast";
-import {
-  ensureRazorpayScript,
-  createPaymentSessionWithConflictRecovery,
-  openRazorpayCheckout,
-} from "@/services/razorpayService";
+// Razorpay checkout removed — payment now redirects to external checkout links
 import rakhi1 from "@/assets/rakhi-1.webp.asset.json";
 import rakhi2 from "@/assets/rakhi-2.webp.asset.json";
 import rakhi3 from "@/assets/rakhi-3.webp.asset.json";
@@ -203,10 +199,21 @@ const Index = () => {
     fetchInventoryFromSheets();
   }, []);
 
-  // Preload Razorpay checkout script
-  useEffect(() => {
-    void ensureRazorpayScript();
-  }, []);
+  // (Razorpay preload removed — using external redirect links now)
+
+  // Map of total amount (INR) → external checkout URL
+  const CHECKOUT_URLS: Record<number, string> = {
+    299: "https://learn.angelsonearthhub.com/l/e37f314d7b",
+    499: "https://learn.angelsonearthhub.com/web/checkout/6a57964311f42d65ff57df4b",
+    699: "https://learn.angelsonearthhub.com/l/3812064203",
+    899: "https://learn.angelsonearthhub.com/web/checkout/6a5796798cc66876f8f11c52",
+    1099: "https://learn.angelsonearthhub.com/l/11b4370d5d",
+    1299: "https://learn.angelsonearthhub.com/l/242f291900",
+    1499: "https://learn.angelsonearthhub.com/l/06418c782a",
+    1699: "https://learn.angelsonearthhub.com/l/a6bb7cb025",
+    1899: "https://learn.angelsonearthhub.com/web/checkout/6a5796f511f42d65ff5822cb",
+    1999: "https://learn.angelsonearthhub.com/l/594b8fec65",
+  };
 
   // Helper functions for inventory
   const getAvailableQuantity = (quantity: number) => {
@@ -295,42 +302,36 @@ const Index = () => {
       return;
     }
 
+    const checkoutUrl = CHECKOUT_URLS[amount];
+    if (!checkoutUrl) {
+      setError(
+        `No checkout link configured for ₹${amount}. Please adjust your quantity.`,
+      );
+      return;
+    }
+
     setProcessing(true);
     setError("");
     try {
-      await ensureRazorpayScript();
       const clientOrderId = `rakhi_${Date.now()}_${Math.random()
         .toString(36)
         .slice(2, 8)}_C${rakhi1Quantity}_P${rakhi2Quantity}_T${testQuantity}`;
 
-      const config = {
-        amount,
-        name: parsed.data.name,
-        email: parsed.data.email,
-        // create-session expects local number without country code
-        phone: parsed.data.phone,
-        clientOrderId,
-        address1: parsed.data.address1,
-        address2: parsed.data.address2 || "",
-        city: parsed.data.city,
-        pincode: parsed.data.pincode,
-      };
-
-      // Fire webhook to Pabbly (fire-and-forget) as soon as user proceeds
+      // Fire webhook to Pabbly (fire-and-forget) as soon as user proceeds to payment
       void supabase.functions.invoke("notify-order-webhook", {
         body: {
           event: "checkout_initiated",
           client_order_id: clientOrderId,
           customer: {
-            name: config.name,
-            email: config.email,
-            phone: config.phone,
+            name: parsed.data.name,
+            email: parsed.data.email,
+            phone: parsed.data.phone,
           },
           address: {
-            address1: config.address1,
-            address2: config.address2,
-            city: config.city,
-            pincode: config.pincode,
+            address1: parsed.data.address1,
+            address2: parsed.data.address2 || "",
+            city: parsed.data.city,
+            pincode: parsed.data.pincode,
           },
           items: {
             chakra_qty: rakhi1Quantity,
@@ -340,93 +341,33 @@ const Index = () => {
           },
           amount,
           currency: "INR",
+          checkout_url: checkoutUrl,
         },
       }).catch((e) => console.warn("[notify-order-webhook] failed:", e));
 
-      const { session, effectiveConfig } =
-        await createPaymentSessionWithConflictRecovery(config);
-      if (!session.ok) {
-        const conflict =
-          session.status === 409 || /conflict/i.test(session.body || "");
-        setError(
-          conflict
-            ? "We found an existing account with different contact details. Please use the email or phone you originally registered with."
-            : session.err || "Could not start payment. Please try again.",
-        );
-        setProcessing(false);
-        return;
-      }
-
-      openRazorpayCheckout(
-        session,
-        effectiveConfig,
-        (response) => {
-          setProcessing(false);
-          // Record successful order in Lovable Cloud DB
-          void supabase.functions.invoke("record-order", {
-            body: {
-              client_order_id: clientOrderId,
-              customer_name: effectiveConfig.name,
-              customer_email: effectiveConfig.email,
-              customer_phone: effectiveConfig.phone,
-              address1: effectiveConfig.address1,
-              address2: effectiveConfig.address2,
-              city: effectiveConfig.city,
-              pincode: effectiveConfig.pincode,
-              chakra_qty: rakhi1Quantity,
-              prosperity_qty: rakhi2Quantity,
-              hooponopono_qty: testQuantity,
-              total_qty: grandTotalItems,
-              amount,
-              currency: "INR",
-              status: "success",
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              fan_id: effectiveConfig.fanId,
-            },
-          }).catch((e) => console.warn("[record-order] failed:", e));
-
-          // Also notify Pabbly of the success event
-          void supabase.functions.invoke("notify-order-webhook", {
-            body: {
-              event: "payment_success",
-              client_order_id: clientOrderId,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              amount,
-              customer: {
-                name: effectiveConfig.name,
-                email: effectiveConfig.email,
-                phone: effectiveConfig.phone,
-              },
-            },
-          }).catch((e) => console.warn("[notify-order-webhook] failed:", e));
-
-          toast({
-            title: "Payment successful 🎉",
-            description: `Payment ID: ${response.razorpay_payment_id}`,
-          });
-          setRakhi1Quantity(0);
-          setRakhi2Quantity(0);
-          setTestQuantity(0);
-          setCustomerName("");
-          setCustomerEmail("");
-          setCustomerPhone("");
-          setAddress1("");
-          setAddress2("");
-          setCity("");
-          setPincode("");
-          setCheckoutStep("items");
+      // Record the order (status: pending) so the backend DB always has it
+      void supabase.functions.invoke("record-order", {
+        body: {
+          client_order_id: clientOrderId,
+          customer_name: parsed.data.name,
+          customer_email: parsed.data.email,
+          customer_phone: parsed.data.phone,
+          address1: parsed.data.address1,
+          address2: parsed.data.address2 || "",
+          city: parsed.data.city,
+          pincode: parsed.data.pincode,
+          chakra_qty: rakhi1Quantity,
+          prosperity_qty: rakhi2Quantity,
+          hooponopono_qty: testQuantity,
+          total_qty: grandTotalItems,
+          amount,
+          currency: "INR",
+          status: "pending",
         },
-        (err) => {
-          setProcessing(false);
-          setError(err?.description || "Payment failed. Please try again.");
-        },
-        () => {
-          setProcessing(false);
-        }
-      );
+      }).catch((e) => console.warn("[record-order] failed:", e));
+
+      // Redirect the user to the configured external checkout page
+      window.location.href = checkoutUrl;
     } catch (e) {
       console.error("[handleBuyNow] error", e);
       setError("Something went wrong. Please try again.");
