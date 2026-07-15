@@ -678,41 +678,32 @@ const Index = () => {
                 {/* Customer & Address Details */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-foreground">Your Details</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="name-d">Full Name</Label>
-                    <Input id="name-d" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Enter your full name" maxLength={100} />
-                  </div>
+                  <Input id="name-d" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Full Name" maxLength={100} />
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="email-d">Email</Label>
-                      <Input id="email-d" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="you@example.com" maxLength={255} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone-d">Mobile</Label>
-                      <Input id="phone-d" type="tel" inputMode="numeric" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))} placeholder="10-digit mobile" maxLength={10} />
+                    <Input id="email-d" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="Email" maxLength={255} />
+                    <div className="flex gap-2">
+                      <select
+                        aria-label="Country code"
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="h-10 rounded-md border border-input bg-background px-2 text-sm shrink-0"
+                      >
+                        {countryCodes.map((c) => (
+                          <option key={c.code} value={c.code}>{c.label}</option>
+                        ))}
+                      </select>
+                      <Input id="phone-d" type="tel" inputMode="numeric" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))} placeholder="Mobile Number" maxLength={15} />
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <h4 className="font-medium text-foreground">Shipping Address</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="addr1-d">Address Line 1</Label>
-                    <Input id="addr1-d" value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="House / Flat / Street" maxLength={200} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="addr2-d">Address Line 2 <span className="text-xs text-muted-foreground">(optional)</span></Label>
-                    <Input id="addr2-d" value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Landmark / Area" maxLength={200} />
-                  </div>
+                  <Input id="addr1-d" value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="Address Line 1" maxLength={200} />
+                  <Input id="addr2-d" value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Address Line 2 (Optional)" maxLength={200} />
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="city-d">City</Label>
-                      <Input id="city-d" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" maxLength={80} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pin-d">Pincode</Label>
-                      <Input id="pin-d" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="6-digit pincode" maxLength={6} />
-                    </div>
+                    <Input id="city-d" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" maxLength={80} />
+                    <Input id="pin-d" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="Pincode" maxLength={6} />
                   </div>
                 </div>
 
