@@ -414,7 +414,15 @@ const Index = () => {
                </CardHeader>
                <CardContent className="p-6 space-y-6">
                 
-                {/* Customer & Address Details */}
+                {/* Customer & Address Details - shown in DETAILS step */}
+                {checkoutStep === "details" && (
+                <>
+                <button
+                  onClick={() => setCheckoutStep("items")}
+                  className="text-sm text-primary underline underline-offset-2"
+                >
+                  ← Edit items
+                </button>
                 <div className="space-y-3">
                   <h4 className="font-medium text-foreground">Your Details</h4>
                   <Input id="name-m" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Full Name" maxLength={100} />
@@ -443,7 +451,12 @@ const Index = () => {
                     <Input id="pin-m" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="Pincode" maxLength={6} />
                   </div>
                 </div>
+                </>
+                )}
 
+                {/* Items - shown in ITEMS step */}
+                {checkoutStep === "items" && (
+                <>
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
