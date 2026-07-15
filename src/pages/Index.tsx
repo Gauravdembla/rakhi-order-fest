@@ -703,44 +703,6 @@ const Index = () => {
                   )}
                 </div>
 
-                {/* Customer Details */}
-                <div className="space-y-3">
-                  <h4 className="font-medium text-foreground">Your Details</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="name-d">Full Name</Label>
-                    <Input
-                      id="name-d"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="Enter your full name"
-                      maxLength={100}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-d">Email</Label>
-                    <Input
-                      id="email-d"
-                      type="email"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      maxLength={255}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone-d">Phone</Label>
-                    <Input
-                      id="phone-d"
-                      type="tel"
-                      inputMode="numeric"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))}
-                      placeholder="10-digit mobile number"
-                      maxLength={10}
-                    />
-                  </div>
-                </div>
-
                 {/* Error Message */}
                 {error && (
                   <Alert variant="destructive">
