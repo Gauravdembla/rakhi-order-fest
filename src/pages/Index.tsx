@@ -1022,6 +1022,30 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Social proof floating toast */}
+      <div
+        aria-live="polite"
+        className={`fixed bottom-4 left-4 z-50 max-w-[85vw] sm:max-w-xs transition-all duration-500 ${
+          socialProof.visible && socialProof.name
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-card/95 backdrop-blur px-3 py-2 shadow-lg">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+            <Gift className="h-4 w-4 text-primary" />
+          </div>
+          <div className="text-xs leading-tight">
+            <p className="font-semibold text-foreground">
+              {socialProof.name} from {socialProof.city}
+            </p>
+            <p className="text-muted-foreground">
+              just bought {socialProof.qty} rakhi{socialProof.qty > 1 ? "s" : ""} 🎉
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
