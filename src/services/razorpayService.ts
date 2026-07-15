@@ -6,6 +6,8 @@
 const API_BASE = "https://square-surf-2287.connect-17d.workers.dev";
 const BRAND_COLOR = "#d669d8";
 
+import { supabase } from "@/integrations/supabase/client";
+
 export interface PaymentConfig {
   amount: number; // in INR
   name: string;
@@ -16,6 +18,7 @@ export interface PaymentConfig {
   address2?: string;
   city?: string;
   pincode?: string;
+  fanId?: string;
 }
 
 export interface PaymentResponse {
@@ -33,6 +36,9 @@ export interface CreateSessionResponse {
   options?: Record<string, any>;
   clientOrderId?: string;
   err?: string;
+  step?: string;
+  status?: number;
+  body?: string;
 }
 
 export interface PaymentOutcome {
@@ -68,6 +74,7 @@ export async function createPaymentSession(
         address2: config.address2,
         city: config.city,
         pincode: config.pincode,
+        fanId: config.fanId,
       }),
     });
     const data = await response.json();
@@ -77,6 +84,87 @@ export async function createPaymentSession(
     console.error("[razorpayService] create-session error:", error);
     return { ok: false, err: String(error) };
   }
+}
+
+/**
+ * Detects TagMango 409 conflict from the Cloudflare worker response.
+ */
+function isTagmangoConflict(res: CreateSessionResponse): boolean {
+  if (res.ok) return false;
+  if (res.status === 409 && res.step === "tm_register") return true;
+  const body = res.body || "";
+  return /conflictByPhone|conflictByEmail|Conflict by phone/i.test(body);
+}
+
+/**
+ * Look up an existing TagMango participant by email or phone via our edge function.
+ */
+export async function lookupTagmangoParticipant(params: {
+  email?: string;
+  phone?: string;
+}): Promise<{
+  fanId: string;
+  fanName: string;
+  fanEmail: string | null;
+  phone: string | null;
+  dialCode: string | null;
+} | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      "lookup-tagmango-participant",
+      { body: params },
+    );
+    if (error) {
+      console.warn("[razorpayService] lookup error:", error);
+      return null;
+    }
+    if (data?.found && data?.participant) return data.participant;
+    return null;
+  } catch (err) {
+    console.warn("[razorpayService] lookup exception:", err);
+    return null;
+  }
+}
+
+/**
+ * Create a payment session and, on TagMango 409 conflict, transparently look up
+ * the existing participant and retry using their registered email + phone.
+ * Returns the successful session plus the (possibly adjusted) config that was used.
+ */
+export async function createPaymentSessionWithConflictRecovery(
+  config: PaymentConfig,
+): Promise<{ session: CreateSessionResponse; effectiveConfig: PaymentConfig }> {
+  let session = await createPaymentSession(config);
+  if (session.ok || !isTagmangoConflict(session)) {
+    return { session, effectiveConfig: config };
+  }
+
+  console.log("[razorpayService] TagMango conflict — attempting participant lookup");
+
+  // Try by email first, then by phone.
+  let participant = await lookupTagmangoParticipant({ email: config.email });
+  if (!participant) {
+    // Strip country code prefix if present for the lookup
+    const digits = (config.phone || "").replace(/\D+/g, "");
+    participant = await lookupTagmangoParticipant({ phone: digits });
+  }
+
+  if (!participant) {
+    return { session, effectiveConfig: config };
+  }
+
+  const retryConfig: PaymentConfig = {
+    ...config,
+    email: participant.fanEmail || config.email,
+    phone: participant.phone
+      ? (participant.dialCode ? `+${participant.dialCode}${participant.phone.replace(new RegExp(`^${participant.dialCode}`), "")}` : `+${participant.phone}`)
+      : config.phone,
+    fanId: participant.fanId,
+  };
+
+  console.log("[razorpayService] Retrying session with matched participant fanId:", participant.fanId);
+  session = await createPaymentSession(retryConfig);
+  return { session, effectiveConfig: retryConfig };
 }
 
 export async function notifyPaymentComplete(

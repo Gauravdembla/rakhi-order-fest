@@ -10,7 +10,7 @@ import { z } from "zod";
 import { toast } from "@/hooks/use-toast";
 import {
   ensureRazorpayScript,
-  createPaymentSession,
+  createPaymentSessionWithConflictRecovery,
   openRazorpayCheckout,
 } from "@/services/razorpayService";
 
@@ -31,6 +31,7 @@ const Index = () => {
   const [city, setCity] = useState("");
   const [pincode, setPincode] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<"items" | "details">("items");
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
   const countryCodes = [
@@ -266,16 +267,23 @@ const Index = () => {
         pincode: parsed.data.pincode,
       };
 
-      const session = await createPaymentSession(config);
+      const { session, effectiveConfig } =
+        await createPaymentSessionWithConflictRecovery(config);
       if (!session.ok) {
-        setError(session.err || "Could not start payment. Please try again.");
+        const conflict =
+          session.status === 409 || /conflict/i.test(session.body || "");
+        setError(
+          conflict
+            ? "We found an existing account with different contact details. Please use the email or phone you originally registered with."
+            : session.err || "Could not start payment. Please try again.",
+        );
         setProcessing(false);
         return;
       }
 
       openRazorpayCheckout(
         session,
-        config,
+        effectiveConfig,
         (response) => {
           setProcessing(false);
           toast({
@@ -292,6 +300,7 @@ const Index = () => {
           setAddress2("");
           setCity("");
           setPincode("");
+          setCheckoutStep("items");
         },
         (err) => {
           setProcessing(false);
@@ -405,7 +414,15 @@ const Index = () => {
                </CardHeader>
                <CardContent className="p-6 space-y-6">
                 
-                {/* Customer & Address Details */}
+                {/* Customer & Address Details - shown in DETAILS step */}
+                {checkoutStep === "details" && (
+                <>
+                <button
+                  onClick={() => setCheckoutStep("items")}
+                  className="text-sm text-primary underline underline-offset-2"
+                >
+                  ← Edit items
+                </button>
                 <div className="space-y-3">
                   <h4 className="font-medium text-foreground">Your Details</h4>
                   <Input id="name-m" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Full Name" maxLength={100} />
@@ -434,7 +451,12 @@ const Index = () => {
                     <Input id="pin-m" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="Pincode" maxLength={6} />
                   </div>
                 </div>
+                </>
+                )}
 
+                {/* Items - shown in ITEMS step */}
+                {checkoutStep === "items" && (
+                <>
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
@@ -545,6 +567,8 @@ const Index = () => {
                     </button>
                   </div>
                 </div>
+                </>
+                )}
 
                 {/* Order Summary */}
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
@@ -582,22 +606,41 @@ const Index = () => {
                   </Alert>
                 )}
 
-                {/* Buy Button */}
-                <Button 
-                  onClick={handleBuyNow}
-                  disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
-                  className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
-                >
-                  {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
-                </Button>
+                {/* Primary Action Button */}
+                {checkoutStep === "items" ? (
+                  <Button
+                    onClick={() => {
+                      if (!validateForm()) return;
+                      setCheckoutStep("details");
+                    }}
+                    disabled={grandTotalItems < 1 || totalQuantity > 12}
+                    className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
+                  >
+                    Continue to details →
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleBuyNow}
+                    disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
+                    className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
+                  >
+                    {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
+                  </Button>
+                )}
 
-                {/* Back Button */}
-                <Button 
-                  onClick={() => setCurrentSlide(0)}
+                {/* Secondary Back Button */}
+                <Button
+                  onClick={() => {
+                    if (checkoutStep === "details") {
+                      setCheckoutStep("items");
+                    } else {
+                      setCurrentSlide(0);
+                    }
+                  }}
                   variant="outline"
                   className="w-full h-10 text-sm font-medium"
                 >
-                  ← Back to Product Details
+                  {checkoutStep === "details" ? "← Back to items" : "← Back to Product Details"}
                 </Button>
 
                 {/* Info Message */}
@@ -675,7 +718,15 @@ const Index = () => {
               </CardHeader>
                <CardContent className="p-6 space-y-6">
                 
-                {/* Customer & Address Details */}
+                {/* Customer & Address Details - DETAILS step */}
+                {checkoutStep === "details" && (
+                <>
+                <button
+                  onClick={() => setCheckoutStep("items")}
+                  className="text-sm text-primary underline underline-offset-2 self-start"
+                >
+                  ← Edit items
+                </button>
                 <div className="space-y-3">
                   <h4 className="font-medium text-foreground">Your Details</h4>
                   <Input id="name-d" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Full Name" maxLength={100} />
@@ -706,7 +757,12 @@ const Index = () => {
                     <Input id="pin-d" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="Pincode" maxLength={6} />
                   </div>
                 </div>
+                </>
+                )}
 
+                {/* Items - ITEMS step */}
+                {checkoutStep === "items" && (
+                <>
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
@@ -817,6 +873,8 @@ const Index = () => {
                     </button>
                   </div>
                 </div>
+                </>
+                )}
 
                 {/* Order Summary */}
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
@@ -854,14 +912,37 @@ const Index = () => {
                   </Alert>
                 )}
 
-                {/* Buy Button */}
-                <Button 
-                  onClick={handleBuyNow}
-                  disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
-                  className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
-                >
-                  {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
-                </Button>
+                {/* Primary Action */}
+                {checkoutStep === "items" ? (
+                  <Button
+                    onClick={() => {
+                      if (!validateForm()) return;
+                      setCheckoutStep("details");
+                    }}
+                    disabled={grandTotalItems < 1 || totalQuantity > 12}
+                    className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
+                  >
+                    Continue to details →
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleBuyNow}
+                    disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
+                    className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
+                  >
+                    {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
+                  </Button>
+                )}
+
+                {checkoutStep === "details" && (
+                  <Button
+                    onClick={() => setCheckoutStep("items")}
+                    variant="outline"
+                    className="w-full h-10 text-sm font-medium"
+                  >
+                    ← Back to items
+                  </Button>
+                )}
 
                 {/* Info Message */}
                 <div className="text-center">
