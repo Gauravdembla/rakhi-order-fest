@@ -314,6 +314,33 @@ const Index = () => {
         pincode: parsed.data.pincode,
       };
 
+      // Fire webhook to Pabbly (fire-and-forget) as soon as user proceeds
+      void supabase.functions.invoke("notify-order-webhook", {
+        body: {
+          event: "checkout_initiated",
+          client_order_id: clientOrderId,
+          customer: {
+            name: config.name,
+            email: config.email,
+            phone: config.phone,
+          },
+          address: {
+            address1: config.address1,
+            address2: config.address2,
+            city: config.city,
+            pincode: config.pincode,
+          },
+          items: {
+            chakra_qty: rakhi1Quantity,
+            prosperity_qty: rakhi2Quantity,
+            hooponopono_qty: testQuantity,
+            total_qty: grandTotalItems,
+          },
+          amount,
+          currency: "INR",
+        },
+      }).catch((e) => console.warn("[notify-order-webhook] failed:", e));
+
       const { session, effectiveConfig } =
         await createPaymentSessionWithConflictRecovery(config);
       if (!session.ok) {
@@ -333,6 +360,47 @@ const Index = () => {
         effectiveConfig,
         (response) => {
           setProcessing(false);
+          // Record successful order in Lovable Cloud DB
+          void supabase.functions.invoke("record-order", {
+            body: {
+              client_order_id: clientOrderId,
+              customer_name: effectiveConfig.name,
+              customer_email: effectiveConfig.email,
+              customer_phone: effectiveConfig.phone,
+              address1: effectiveConfig.address1,
+              address2: effectiveConfig.address2,
+              city: effectiveConfig.city,
+              pincode: effectiveConfig.pincode,
+              chakra_qty: rakhi1Quantity,
+              prosperity_qty: rakhi2Quantity,
+              hooponopono_qty: testQuantity,
+              total_qty: grandTotalItems,
+              amount,
+              currency: "INR",
+              status: "success",
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              fan_id: effectiveConfig.fanId,
+            },
+          }).catch((e) => console.warn("[record-order] failed:", e));
+
+          // Also notify Pabbly of the success event
+          void supabase.functions.invoke("notify-order-webhook", {
+            body: {
+              event: "payment_success",
+              client_order_id: clientOrderId,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              amount,
+              customer: {
+                name: effectiveConfig.name,
+                email: effectiveConfig.email,
+                phone: effectiveConfig.phone,
+              },
+            },
+          }).catch((e) => console.warn("[notify-order-webhook] failed:", e));
+
           toast({
             title: "Payment successful 🎉",
             description: `Payment ID: ${response.razorpay_payment_id}`,
