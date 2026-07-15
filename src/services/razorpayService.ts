@@ -154,11 +154,19 @@ export async function createPaymentSessionWithConflictRecovery(
     return { session, effectiveConfig: config };
   }
 
-  // participant.phone comes back as digits (e.g. "919871324442"), already includes
-  // the country code. Just prepend "+" — do NOT concatenate dialCode again.
-  const rebuiltPhone = participant.phone
-    ? `+${participant.phone.replace(/\D+/g, "")}`
-    : config.phone;
+  // create-session expects the LOCAL phone number without country code.
+  // participant.phone comes back as full digits e.g. "919871324442" — strip the
+  // dial code (or fall back to last 10 digits for IN-style numbers).
+  let rebuiltPhone = config.phone;
+  if (participant.phone) {
+    const digits = participant.phone.replace(/\D+/g, "");
+    const dial = (participant.dialCode || "").replace(/\D+/g, "");
+    if (dial && digits.startsWith(dial)) {
+      rebuiltPhone = digits.slice(dial.length);
+    } else {
+      rebuiltPhone = digits.slice(-10);
+    }
+  }
 
   const retryConfig: PaymentConfig = {
     ...config,
