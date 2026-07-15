@@ -21,6 +21,47 @@ import rakhi5 from "@/assets/rakhi-5.webp.asset.json";
 import rakhi6 from "@/assets/rakhi-6.webp.asset.json";
 import rakhi7 from "@/assets/rakhi-7.webp.asset.json";
 
+type RakhiDescProps = {
+  emoji: string;
+  title: string;
+  short: string;
+  more: React.ReactNode;
+  size?: "sm" | "md";
+};
+const RakhiDescription = ({ emoji, title, short, more, size = "sm" }: RakhiDescProps) => {
+  const [open, setOpen] = useState(false);
+  const headingCls = size === "md" ? "text-xl font-semibold text-foreground mb-3" : "text-lg font-semibold text-foreground mb-2";
+  const textCls = size === "md" ? "text-muted-foreground leading-relaxed" : "text-muted-foreground text-sm leading-relaxed";
+  return (
+    <div>
+      <h3 className={headingCls}>{emoji} {title}</h3>
+      <p className={textCls}>
+        {short}
+        {!open && "… "}
+        {!open && (
+          <button
+            onClick={() => setOpen(true)}
+            className="text-primary font-medium hover:underline"
+          >
+            Read more
+          </button>
+        )}
+      </p>
+      {open && (
+        <div className="mt-2 space-y-2">
+          {more}
+          <button
+            onClick={() => setOpen(false)}
+            className="text-primary font-medium hover:underline text-sm"
+          >
+            Read less
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
   const [rakhi2Quantity, setRakhi2Quantity] = useState<number>(0);
