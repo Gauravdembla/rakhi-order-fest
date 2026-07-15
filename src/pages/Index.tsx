@@ -636,6 +636,47 @@ const Index = () => {
               </CardHeader>
                <CardContent className="p-6 space-y-6">
                 
+                {/* Customer & Address Details */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-foreground">Your Details</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="name-d">Full Name</Label>
+                    <Input id="name-d" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Enter your full name" maxLength={100} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="email-d">Email</Label>
+                      <Input id="email-d" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="you@example.com" maxLength={255} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone-d">Mobile</Label>
+                      <Input id="phone-d" type="tel" inputMode="numeric" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))} placeholder="10-digit mobile" maxLength={10} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-medium text-foreground">Shipping Address</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="addr1-d">Address Line 1</Label>
+                    <Input id="addr1-d" value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="House / Flat / Street" maxLength={200} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="addr2-d">Address Line 2 <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                    <Input id="addr2-d" value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Landmark / Area" maxLength={200} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="city-d">City</Label>
+                      <Input id="city-d" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" maxLength={80} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="pin-d">Pincode</Label>
+                      <Input id="pin-d" inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="6-digit pincode" maxLength={6} />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Rakhi 1 */}
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
