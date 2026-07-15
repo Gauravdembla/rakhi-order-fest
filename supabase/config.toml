@@ -1,1 +1,7 @@
 project_id = "pmwnxcyltqbdziwufwxs"
+
+[functions.notify-order-webhook]
+verify_jwt = false
+
+[functions.record-order]
+verify_jwt = false
