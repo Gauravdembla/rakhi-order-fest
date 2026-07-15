@@ -39,18 +39,33 @@ const RakhiDescription = ({ emoji, title, short, more, size = "sm" }: RakhiDescP
   const [open, setOpen] = useState(false);
   const headingCls = size === "md" ? "text-xl font-semibold text-foreground mb-3" : "text-lg font-semibold text-foreground mb-2";
   const textCls = size === "md" ? "text-muted-foreground leading-relaxed" : "text-muted-foreground text-sm leading-relaxed";
-  const clampCls = !open && size === "sm" ? "line-clamp-1" : "";
   return (
     <div>
       <h3 className={headingCls}>{emoji} {title}</h3>
-      <p className={`${textCls} ${clampCls}`}>{short}</p>
-      {open && <div className="mt-2 space-y-2">{more}</div>}
-      <button
-        onClick={() => setOpen(!open)}
-        className="text-primary font-medium hover:underline text-sm mt-1"
-      >
-        {open ? "Read less" : "Read more..."}
-      </button>
+      {open ? (
+        <p className={textCls}>{short}</p>
+      ) : (
+        <div className={`${textCls} flex items-baseline gap-2`}>
+          <span className="truncate min-w-0">{short}</span>
+          <button
+            onClick={() => setOpen(true)}
+            className="text-primary font-medium hover:underline text-sm whitespace-nowrap shrink-0"
+          >
+            Read more...
+          </button>
+        </div>
+      )}
+      {open && (
+        <div className="mt-2 space-y-2">
+          {more}
+          <button
+            onClick={() => setOpen(false)}
+            className="text-primary font-medium hover:underline text-sm"
+          >
+            Read less
+          </button>
+        </div>
+      )}
     </div>
   );
 };
