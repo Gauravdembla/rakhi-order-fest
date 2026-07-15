@@ -23,6 +23,20 @@ import threeRakhisBanner from "@/assets/three-rakhis-banner.webp.asset.json";
 import prosperityBanner from "@/assets/prosperity-banner.webp.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 
+const SOCIAL_NAMES = [
+  "Priya", "Ananya", "Rohan", "Aarav", "Ishita", "Kavya", "Vikram", "Neha",
+  "Rahul", "Sneha", "Aditya", "Meera", "Karan", "Pooja", "Siddharth", "Ritika",
+  "Arjun", "Divya", "Nikhil", "Shreya", "Manish", "Tanvi", "Gaurav", "Aishwarya",
+];
+const SOCIAL_CITIES = [
+  "Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Chennai", "Kolkata", "Pune",
+  "Ahmedabad", "Jaipur", "Lucknow", "Chandigarh", "Indore", "Gurugram", "Noida",
+  "Surat", "Bhopal", "Nagpur", "Kochi", "Coimbatore", "Vadodara",
+];
+const pickRandom = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+const randomBetween = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
 type RakhiDescProps = {
   emoji: string;
   title: string;
@@ -68,6 +82,50 @@ const Index = () => {
   const [pincode, setPincode] = useState("");
   const [processing, setProcessing] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<"items" | "details">("items");
+
+  // Simulated live availability per rakhi — randomly fluctuates between 10 and 15
+  const [availability, setAvailability] = useState({
+    chakra: randomBetween(10, 15),
+    prosperity: randomBetween(10, 15),
+    hooponopono: randomBetween(10, 15),
+  });
+  useEffect(() => {
+    const id = setInterval(() => {
+      setAvailability({
+        chakra: randomBetween(10, 15),
+        prosperity: randomBetween(10, 15),
+        hooponopono: randomBetween(10, 15),
+      });
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Social proof ticker
+  const [socialProof, setSocialProof] = useState<{
+    name: string; city: string; qty: number; visible: boolean;
+  }>({ name: "", city: "", qty: 0, visible: false });
+  useEffect(() => {
+    let hideTimer: ReturnType<typeof setTimeout>;
+    const show = () => {
+      setSocialProof({
+        name: pickRandom(SOCIAL_NAMES),
+        city: pickRandom(SOCIAL_CITIES),
+        qty: randomBetween(1, 10),
+        visible: true,
+      });
+      hideTimer = setTimeout(
+        () => setSocialProof((p) => ({ ...p, visible: false })),
+        4500
+      );
+    };
+    const first = setTimeout(show, 2500);
+    const cycle = setInterval(show, 8000);
+    return () => {
+      clearTimeout(first);
+      clearTimeout(hideTimer);
+      clearInterval(cycle);
+    };
+  }, []);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity + testQuantity;
   const countryCodes = [
@@ -528,7 +586,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.chakra} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                       <button 
@@ -553,7 +611,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Prosperity Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.prosperity} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                       <button 
@@ -578,7 +636,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Ho'oponopono Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.hooponopono} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -818,7 +876,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">7 Chakra's Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.chakra} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                       <button 
@@ -843,7 +901,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Prosperity Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.prosperity} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                       <button 
@@ -868,7 +926,7 @@ const Index = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">Ho'oponopono Rakhi</span>
-                    <span className="text-xs text-green-600">50 Available</span>
+                    <span className="text-xs text-green-600">{availability.hooponopono} Available</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -961,6 +1019,30 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Social proof floating toast */}
+      <div
+        aria-live="polite"
+        className={`fixed bottom-4 left-4 z-50 max-w-[85vw] sm:max-w-xs transition-all duration-500 ${
+          socialProof.visible && socialProof.name
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-card/95 backdrop-blur px-3 py-2 shadow-lg">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+            <Gift className="h-4 w-4 text-primary" />
+          </div>
+          <div className="text-xs leading-tight">
+            <p className="font-semibold text-foreground">
+              {socialProof.name} from {socialProof.city}
+            </p>
+            <p className="text-muted-foreground">
+              just bought {socialProof.qty} rakhi{socialProof.qty > 1 ? "s" : ""} 🎉
+            </p>
           </div>
         </div>
       </div>
