@@ -21,6 +21,47 @@ import rakhi5 from "@/assets/rakhi-5.webp.asset.json";
 import rakhi6 from "@/assets/rakhi-6.webp.asset.json";
 import rakhi7 from "@/assets/rakhi-7.webp.asset.json";
 
+type RakhiDescProps = {
+  emoji: string;
+  title: string;
+  short: string;
+  more: React.ReactNode;
+  size?: "sm" | "md";
+};
+const RakhiDescription = ({ emoji, title, short, more, size = "sm" }: RakhiDescProps) => {
+  const [open, setOpen] = useState(false);
+  const headingCls = size === "md" ? "text-xl font-semibold text-foreground mb-3" : "text-lg font-semibold text-foreground mb-2";
+  const textCls = size === "md" ? "text-muted-foreground leading-relaxed" : "text-muted-foreground text-sm leading-relaxed";
+  return (
+    <div>
+      <h3 className={headingCls}>{emoji} {title}</h3>
+      <p className={textCls}>
+        {short}
+        {!open && "… "}
+        {!open && (
+          <button
+            onClick={() => setOpen(true)}
+            className="text-primary font-medium hover:underline"
+          >
+            Read more
+          </button>
+        )}
+      </p>
+      {open && (
+        <div className="mt-2 space-y-2">
+          {more}
+          <button
+            onClick={() => setOpen(false)}
+            className="text-primary font-medium hover:underline text-sm"
+          >
+            Read less
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Index = () => {
   const [rakhi1Quantity, setRakhi1Quantity] = useState<number>(0);
   const [rakhi2Quantity, setRakhi2Quantity] = useState<number>(0);
@@ -387,27 +428,41 @@ const Index = () => {
 
               {/* Rakhi Descriptions */}
               <div className="space-y-4 mb-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">🌈 7 Chakra's Rakhi</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection. Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">🌺 Ho'oponopono Rakhi</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Infused with the healing power of Ho'oponopono, this sacred thread carries the energy of forgiveness, love, gratitude, and inner peace. Each crystal represents one of the five divine phrases, helping you release the past, heal the heart, and restore harmony within and in your relationships.
-                  </p>
-                  <p className="text-muted-foreground text-sm leading-relaxed italic mt-2">
-                    ✨ May this rakhi remind you that healing begins with you, and love transforms everything. 💗
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">💰 Prosperity Rakhi</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being. Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
-                  </p>
-                </div>
+                <RakhiDescription
+                  emoji="🌈"
+                  title="7 Chakra's Rakhi"
+                  short="Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection."
+                  more={
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit.
+                    </p>
+                  }
+                />
+                <RakhiDescription
+                  emoji="🌺"
+                  title="Ho'oponopono Rakhi"
+                  short="Infused with the healing power of Ho'oponopono, this sacred thread carries the energy of forgiveness, love, gratitude, and inner peace."
+                  more={
+                    <>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        Each crystal represents one of the five divine phrases, helping you release the past, heal the heart, and restore harmony within and in your relationships.
+                      </p>
+                      <p className="text-muted-foreground text-sm leading-relaxed italic">
+                        ✨ May this rakhi remind you that healing begins with you, and love transforms everything. 💗
+                      </p>
+                    </>
+                  }
+                />
+                <RakhiDescription
+                  emoji="💰"
+                  title="Prosperity Rakhi"
+                  short="Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being."
+                  more={
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
+                    </p>
+                  }
+                />
               </div>
             </div>
             
@@ -709,27 +764,44 @@ const Index = () => {
 
             {/* Rakhi Descriptions */}
             <div className="space-y-6">
-              <div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">🌈 7 Chakra's Rakhi</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection. Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit. A sacred thread that radiates positivity and peace.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">🌺 Ho'oponopono Rakhi</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Infused with the healing power of Ho'oponopono, this sacred thread carries the energy of forgiveness, love, gratitude, and inner peace. Each crystal represents one of the five divine phrases, helping you release the past, heal the heart, and restore harmony within and in your relationships.
-                </p>
-                <p className="text-muted-foreground leading-relaxed italic mt-3">
-                  ✨ May this rakhi remind you that healing begins with you, and love transforms everything. 💗
-                </p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">💰 Prosperity Rakhi</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being. Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
-                </p>
-              </div>
+              <RakhiDescription
+                size="md"
+                emoji="🌈"
+                title="7 Chakra's Rakhi"
+                short="Infused with the energy of the seven chakras, this vibrant Rakhi is a symbol of harmony, healing, and divine protection."
+                more={
+                  <p className="text-muted-foreground leading-relaxed">
+                    Each color bead resonates with a specific chakra, helping your brother stay balanced, calm, and aligned on all levels—body, mind, and spirit. A sacred thread that radiates positivity and peace.
+                  </p>
+                }
+              />
+              <RakhiDescription
+                size="md"
+                emoji="🌺"
+                title="Ho'oponopono Rakhi"
+                short="Infused with the healing power of Ho'oponopono, this sacred thread carries the energy of forgiveness, love, gratitude, and inner peace."
+                more={
+                  <>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Each crystal represents one of the five divine phrases, helping you release the past, heal the heart, and restore harmony within and in your relationships.
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed italic">
+                      ✨ May this rakhi remind you that healing begins with you, and love transforms everything. 💗
+                    </p>
+                  </>
+                }
+              />
+              <RakhiDescription
+                size="md"
+                emoji="💰"
+                title="Prosperity Rakhi"
+                short="Blessed with the energies of abundance and good fortune, the Prosperity Rakhi is more than a thread—it's a divine wish for success, wealth, and well-being."
+                more={
+                  <p className="text-muted-foreground leading-relaxed">
+                    Designed to attract Lakshmi's blessings, this Rakhi carries the intention of a thriving, joy-filled future for your beloved brother.
+                  </p>
+                }
+              />
             </div>
           </div>
         </div>
