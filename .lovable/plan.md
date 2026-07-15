@@ -1,44 +1,45 @@
-# Save order details progressively (draft-as-you-type)
+# Also send draft (autosaved) orders to the Pabbly webhook
 
-## Problem
-Right now `record-order` is only called at the moment the user clicks "Proceed to pay", and it's fire-and-forget — if the edge function fails, or the user fills the form but never clicks pay, or they pay via a shared Razorpay Payment Page link, we lose everything: name, email, phone, address, and which rakhis + quantities they selected.
+## What's actually wrong
 
-## Goal
-Persist the customer's details + current cart to the `orders` table **while they are filling the form**, with `status = 'draft'`. When they actually click "Proceed to pay", the same row is upgraded to `status = 'pending'` (already the current behavior via upsert on `client_order_id`). If they abandon, we still have the draft — including product + quantity breakdown — and can follow up.
+The webhook `notify-order-webhook` (which forwards rows to your Pabbly → Google Sheet) is fired **only when the user clicks "Proceed to pay"**. It is NOT fired by the new autosave that saves drafts to the database.
 
-## How it works
+Result:
+- Users who click Proceed to pay → in DB **and** in your Pabbly sheet.
+- Users who fill the form but never click Proceed to pay → in DB as `draft`, **not** in your Pabbly sheet.
 
-1. **Stable client_order_id per session.** Generate one `client_order_id` when the checkout form first becomes relevant (already exists — reuse it, don't regenerate on every keystroke). Store it in `useRef` so it survives re-renders.
+That is exactly why `krishna.verticaleye@gmail.com` is missing from your sheet even though her name, phone, address, and cart are all in the database.
 
-2. **Debounced autosave in `Index.tsx`.**
-   - A `useEffect` watches `customerName`, `customerEmail`, `customerPhone`, `address1`, `address2`, `city`, `pincode`, and the cart quantities (`chakraQty`, `prosperityQty`, `hooponoponoQty`, `totalQty`, `totalAmount`).
-   - Debounce 800ms after the last change.
-   - Only fire once the user has entered **at least a name AND (email or 10-digit phone)** — avoids junk rows from someone who just clicked into the name field.
-   - Calls `supabase.functions.invoke("record-order", { body: { ..., status: "draft" } })` with the same `client_order_id`. The existing upsert on `client_order_id` means repeated calls just update the same row.
+Separately: `janvigupta48480@gmail.com` clicked Proceed to pay, so a webhook *was* fired for her. If she's still missing from the sheet, that is either a Pabbly delivery failure or a filter in Pabbly. I'll pull the edge-function logs for her `client_order_id` to confirm which — but that's an investigation step, not a code change.
 
-3. **Edge function change (`supabase/functions/record-order/index.ts`).**
-   - Relax the "required fields" check when `status === 'draft'`: only `client_order_id` is required; name/email/phone/amount become optional and default to empty string / 0.
-   - For non-draft calls (existing "Proceed to pay" flow), keep the current strict validation untouched.
-   - Never downgrade status: if the existing row is already `pending` / `success` / `failed`, ignore an incoming `draft` write (small guard using `.select().single()` before upsert, or a conditional update).
+## What I'll change
 
-4. **"Proceed to pay" unchanged for the user.** Same button, same validation, same redirect. The only difference is the row already exists as a draft, so the upsert just flips `status` to `pending` and fills any missing fields.
+### 1. `src/pages/Index.tsx` — autosave effect also calls the webhook
 
-5. **Nothing changes for successful payments** — the Cloudflare Worker / webhook still marks them `success` by `client_order_id`.
+The existing debounced autosave effect (that writes `status: 'draft'` to `record-order`) will additionally fire `notify-order-webhook` with the same payload, using:
 
-## What you'll see in the backend afterward
+```
+event: "draft_saved"
+```
 
-For every visitor who typed enough to identify themselves, one row with:
-- name, email, phone, address, city, pincode (whatever they filled)
-- chakra_qty / prosperity_qty / hooponopono_qty / total_qty / amount (their current cart at last edit)
-- `status = 'draft'` → they never clicked pay
-- `status = 'pending'` → they clicked pay, at Razorpay now
-- `status = 'success'` → paid
+Same debounce (800ms), same gating (name entered AND email or 10-digit phone), same `client_order_id`. So every meaningful keystroke pushes the latest snapshot to Pabbly. If the user later clicks Proceed to pay, the existing `event: "checkout_initiated"` webhook still fires — the sheet will just have a newer row overwriting/appending the same `client_order_id`.
 
-You can then filter `status = 'draft'` to see abandoned carts with full product + quantity info and follow up.
+### 2. `supabase/functions/notify-order-webhook/index.ts` — no code change required
+
+It already forwards whatever payload it receives. But I'll add the `event` field to the top-level enrichment so your Pabbly workflow can branch on `draft_saved` vs `checkout_initiated` vs `payment_success` if you want to (already the case — no change needed).
+
+### 3. Investigation step (no code)
+
+Pull edge-function logs for `notify-order-webhook` around 15:29 UTC to confirm whether janvi's webhook call actually succeeded to Pabbly, or whether Pabbly rejected it. I'll report the finding so you know whether the sheet-side needs adjusting too.
+
+## What you'll see afterward
+
+Every visitor who enters name + (email or phone) sends a row to your Pabbly sheet within ~1 second of typing — even if they never click Proceed to pay. The row updates as they keep typing. On Proceed to pay you also get the existing `checkout_initiated` event, and on payment success the existing success event.
 
 ## Files touched
-- `src/pages/Index.tsx` — add debounced autosave effect; ensure `client_order_id` is stable via `useRef`.
-- `supabase/functions/record-order/index.ts` — allow draft rows with relaxed validation; add "don't downgrade status" guard.
+- `src/pages/Index.tsx` — extend the autosave `useEffect` to also invoke `notify-order-webhook`.
+- (no change to the two edge functions)
 
-## Not in scope (call out only)
-- The separate issue of people paying via a **shared Razorpay Payment Page link without ever visiting the site** — those visitors never touch our form, so autosave can't capture them either. If you want those too, that needs a Razorpay webhook receiver, which we can plan as a follow-up.
+## Not in scope
+- Deduping rows inside your Pabbly workflow / Google Sheet — that's a Pabbly-side setting, best keyed off `client_order_id` so drafts and the final paid row update the same sheet row instead of creating new ones.
+- Users who pay via a shared Razorpay link without ever visiting the site — still needs a separate Razorpay webhook receiver.
