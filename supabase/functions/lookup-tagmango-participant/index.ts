@@ -3,6 +3,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 const KV_KEY = "tagmango_token";
 const TM_BASE = "https://api-prod-new.tagmango.com";
 const TM_WHITELABEL_HOST = "learn.angelsonearthhub.com";
+const TM_WHITELABEL_CREATOR = "66f1851e9b5fc4e6c571a7ab";
 
 const sanitize = (s: string) =>
   (s ?? "").trim().replace(/^["']|["']$/g, "").replace(/[^\x20-\x7E]/g, "");
@@ -46,6 +47,7 @@ function tmHeaders(token: string) {
     "origin": `https://${TM_WHITELABEL_HOST}`,
     "referer": `https://${TM_WHITELABEL_HOST}/`,
     "x-whitelabel-host": TM_WHITELABEL_HOST,
+    "x-whitelabel-creator": TM_WHITELABEL_CREATOR,
     "x-platform": "web",
     "x-timezone-name": "Asia/Calcutta",
     "x-timezone-offset": "330",
@@ -55,75 +57,9 @@ function tmHeaders(token: string) {
 
 type Lookup = { email?: string; phone?: string };
 
-async function findParticipant({ email, phone }: Lookup) {
-  const e = normEmail(email);
-  const p = normPhone(phone);
-  if (!e && !p) throw new Error("Provide email or phone");
-
-  const token = await getTagmangoToken();
-  const mangoId = Deno.env.get("TAGMANGO_MANGO_ID");
-
-  const searchTerm = e || p;
-  const baseBody: Record<string, unknown> = {
-    page: 1,
-    pageSize: 50,
-    type: "all",
-    affiliateType: "all",
-    spreadSubscribers: true,
-  };
-  if (mangoId) baseBody.mangoes = [mangoId];
-
-  // TagMango's schema for this endpoint varies — try several known field names.
-  const candidateBodies: Record<string, unknown>[] = [
-    { ...baseBody, searchQuery: searchTerm },
-    { ...baseBody, searchText: searchTerm },
-    { ...baseBody, q: searchTerm },
-    { ...baseBody, keyword: searchTerm },
-    { ...baseBody, filter: { search: searchTerm } },
-    { ...baseBody }, // last resort: no search, rely on client-side match in first page
-  ];
-
-  let json: any = null;
-  let lastErr = "";
-  for (const body of candidateBodies) {
-    const res = await fetch(`${TM_BASE}/v2/subscribers`, {
-      method: "POST",
-      headers: tmHeaders(token),
-      body: JSON.stringify(body),
-    });
-    if (res.status === 401) {
-      throw new Error("TagMango token expired — refresh Cloudflare KV key `tagmango_token`");
-    }
-    if (res.ok) {
-      json = await res.json();
-      console.log("[lookup] accepted body keys:", Object.keys(body).join(","));
-      break;
-    }
-    lastErr = `${res.status}: ${(await res.text()).slice(0, 200)}`;
-    console.log("[lookup] rejected body keys:", Object.keys(body).join(","), "→", lastErr);
-  }
-  if (!json) {
-    throw new Error(`TagMango all search variants failed. Last: ${lastErr}`);
-  }
-
-  const subs: any[] =
-    json?.result?.subscribers ?? json?.result ?? json?.subscribers ?? [];
-
-  const match = subs.find((s: any) => {
-    if (e && normEmail(s.fanEmail) === e) return true;
-    if (p) {
-      const full = normPhone(`${s.dialCode ?? ""}${s.fanPhone ?? ""}`);
-      const bare = normPhone(s.fanPhone);
-      return full === p || bare === p || full.endsWith(p) || p.endsWith(bare);
-    }
-    return false;
-  });
-
-  if (!match) return null;
-
+function toParticipant(match: any) {
   const dialCode = (match.dialCode ?? "").toString();
   const phoneDigits = normPhone(`${dialCode}${match.fanPhone ?? ""}`);
-
   return {
     fanId: String(match.fanId ?? "").trim(),
     fanName: match.fanName ?? "Unknown",
@@ -132,6 +68,70 @@ async function findParticipant({ email, phone }: Lookup) {
     dialCode: dialCode || null,
     profilePicUrl: match.fanProfilePicUrl ?? null,
   };
+}
+
+async function searchByTerm(token: string, term: string) {
+  const body = {
+    page: 1,
+    pageSize: 25,
+    type: "all",
+    affiliateType: "all",
+    spreadSubscribers: true,
+    term,
+  };
+  const res = await fetch(`${TM_BASE}/v2/subscribers`, {
+    method: "POST",
+    headers: tmHeaders(token),
+    body: JSON.stringify(body),
+  });
+  if (res.status === 401) {
+    throw new Error("TagMango token expired — refresh Cloudflare KV key `tagmango_token`");
+  }
+  if (!res.ok) {
+    const txt = (await res.text()).slice(0, 300);
+    throw new Error(`TagMango ${res.status}: ${txt}`);
+  }
+  const json = await res.json();
+  const total = json?.result?.totalUserCount;
+  const subs: any[] =
+    json?.result?.subscribers ?? json?.result ?? json?.subscribers ?? [];
+  console.log(`[lookup] term="${term}" totalUserCount=${total} returned=${subs.length}`);
+  return { total, subs };
+}
+
+async function findParticipant({ email, phone }: Lookup) {
+  const e = normEmail(email);
+  const pFull = normPhone(phone);
+  if (!e && !pFull) throw new Error("Provide email or phone");
+
+  const token = await getTagmangoToken();
+
+  // Step A — search by phone (bare digits, without country code)
+  if (pFull) {
+    const pBare = pFull.length > 10 ? pFull.slice(-10) : pFull;
+    const { subs } = await searchByTerm(token, pBare);
+    const match = subs.find((s: any) => {
+      const bare = normPhone(s.fanPhone);
+      const full = normPhone(`${s.dialCode ?? ""}${s.fanPhone ?? ""}`);
+      return bare === pBare || full.endsWith(pBare) || bare.endsWith(pBare);
+    });
+    if (match) {
+      console.log("[lookup] matched by phone fanId=", match.fanId);
+      return toParticipant(match);
+    }
+  }
+
+  // Step B — search by email
+  if (e) {
+    const { subs } = await searchByTerm(token, e);
+    const match = subs.find((s: any) => normEmail(s.fanEmail) === e);
+    if (match) {
+      console.log("[lookup] matched by email fanId=", match.fanId);
+      return toParticipant(match);
+    }
+  }
+
+  return null;
 }
 
 Deno.serve(async (req) => {
