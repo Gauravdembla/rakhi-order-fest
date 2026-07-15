@@ -223,6 +223,36 @@ const Index = () => {
           },
         })
         .catch((e) => console.warn("[record-order draft] failed:", e));
+
+      // Also push the same snapshot to the Pabbly webhook so drafts
+      // (abandoned carts) land in the Google Sheet, not only paid orders.
+      void supabase.functions
+        .invoke("notify-order-webhook", {
+          body: {
+            event: "draft_saved",
+            client_order_id: clientOrderIdRef.current,
+            customer: {
+              name: customerName.trim(),
+              email: customerEmail.trim(),
+              phone: customerPhone.trim(),
+            },
+            address: {
+              address1: address1.trim(),
+              address2: address2.trim(),
+              city: city.trim(),
+              pincode: pincode.trim(),
+            },
+            items: {
+              chakra_qty: rakhi1Quantity,
+              prosperity_qty: rakhi2Quantity,
+              hooponopono_qty: testQuantity,
+              total_qty: grandTotalItems,
+            },
+            amount: totalAmount,
+            currency: "INR",
+          },
+        })
+        .catch((e) => console.warn("[notify-order-webhook draft] failed:", e));
     }, 800);
     return () => clearTimeout(handle);
   }, [
