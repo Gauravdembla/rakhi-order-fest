@@ -23,6 +23,20 @@ import threeRakhisBanner from "@/assets/three-rakhis-banner.webp.asset.json";
 import prosperityBanner from "@/assets/prosperity-banner.webp.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 
+const SOCIAL_NAMES = [
+  "Priya", "Ananya", "Rohan", "Aarav", "Ishita", "Kavya", "Vikram", "Neha",
+  "Rahul", "Sneha", "Aditya", "Meera", "Karan", "Pooja", "Siddharth", "Ritika",
+  "Arjun", "Divya", "Nikhil", "Shreya", "Manish", "Tanvi", "Gaurav", "Aishwarya",
+];
+const SOCIAL_CITIES = [
+  "Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Chennai", "Kolkata", "Pune",
+  "Ahmedabad", "Jaipur", "Lucknow", "Chandigarh", "Indore", "Gurugram", "Noida",
+  "Surat", "Bhopal", "Nagpur", "Kochi", "Coimbatore", "Vadodara",
+];
+const pickRandom = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+const randomBetween = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
 type RakhiDescProps = {
   emoji: string;
   title: string;
@@ -68,6 +82,50 @@ const Index = () => {
   const [pincode, setPincode] = useState("");
   const [processing, setProcessing] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<"items" | "details">("items");
+
+  // Simulated live availability per rakhi — randomly fluctuates between 10 and 15
+  const [availability, setAvailability] = useState({
+    chakra: randomBetween(10, 15),
+    prosperity: randomBetween(10, 15),
+    hooponopono: randomBetween(10, 15),
+  });
+  useEffect(() => {
+    const id = setInterval(() => {
+      setAvailability({
+        chakra: randomBetween(10, 15),
+        prosperity: randomBetween(10, 15),
+        hooponopono: randomBetween(10, 15),
+      });
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Social proof ticker
+  const [socialProof, setSocialProof] = useState<{
+    name: string; city: string; qty: number; visible: boolean;
+  }>({ name: "", city: "", qty: 0, visible: false });
+  useEffect(() => {
+    let hideTimer: ReturnType<typeof setTimeout>;
+    const show = () => {
+      setSocialProof({
+        name: pickRandom(SOCIAL_NAMES),
+        city: pickRandom(SOCIAL_CITIES),
+        qty: randomBetween(1, 10),
+        visible: true,
+      });
+      hideTimer = setTimeout(
+        () => setSocialProof((p) => ({ ...p, visible: false })),
+        4500
+      );
+    };
+    const first = setTimeout(show, 2500);
+    const cycle = setInterval(show, 8000);
+    return () => {
+      clearTimeout(first);
+      clearTimeout(hideTimer);
+      clearInterval(cycle);
+    };
+  }, []);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity + testQuantity;
   const countryCodes = [
