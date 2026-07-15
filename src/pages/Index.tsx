@@ -23,19 +23,10 @@ import threeRakhisBanner from "@/assets/three-rakhis-banner.webp.asset.json";
 import prosperityBanner from "@/assets/prosperity-banner.webp.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 
-const SOCIAL_NAMES = [
-  "Priya", "Ananya", "Rohan", "Aarav", "Ishita", "Kavya", "Vikram", "Neha",
-  "Rahul", "Sneha", "Aditya", "Meera", "Karan", "Pooja", "Siddharth", "Ritika",
-  "Arjun", "Divya", "Nikhil", "Shreya", "Manish", "Tanvi", "Gaurav", "Aishwarya",
-];
-const SOCIAL_CITIES = [
-  "Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Chennai", "Kolkata", "Pune",
-  "Ahmedabad", "Jaipur", "Lucknow", "Chandigarh", "Indore", "Gurugram", "Noida",
-  "Surat", "Bhopal", "Nagpur", "Kochi", "Coimbatore", "Vadodara",
-];
-const pickRandom = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
 const randomBetween = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
+
+type RecentOrder = { name: string; city: string; qty: number };
 
 type RakhiDescProps = {
   emoji: string;
@@ -101,31 +92,58 @@ const Index = () => {
   }, []);
 
   // Social proof ticker
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [socialProof, setSocialProof] = useState<{
     name: string; city: string; qty: number; visible: boolean;
   }>({ name: "", city: "", qty: 0, visible: false });
+
+  // Fetch real recent orders, then refresh every 60s to pick up new ones
   useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("recent-orders");
+        if (cancelled) return;
+        if (error) {
+          console.warn("[recent-orders] invoke error:", error);
+          return;
+        }
+        const orders = (data?.orders ?? []) as RecentOrder[];
+        if (orders.length) setRecentOrders(orders);
+      } catch (e) {
+        console.warn("[recent-orders] fetch failed:", e);
+      }
+    };
+    load();
+    const refresh = setInterval(load, 60000);
+    return () => {
+      cancelled = true;
+      clearInterval(refresh);
+    };
+  }, []);
+
+  // Cycle through real orders in the toast
+  useEffect(() => {
+    if (recentOrders.length === 0) return;
+    let idx = Math.floor(Math.random() * recentOrders.length);
     let hideTimer: ReturnType<typeof setTimeout>;
     const show = () => {
-      setSocialProof({
-        name: pickRandom(SOCIAL_NAMES),
-        city: pickRandom(SOCIAL_CITIES),
-        qty: randomBetween(1, 10),
-        visible: true,
-      });
+      const o = recentOrders[idx % recentOrders.length];
+      idx += 1;
+      setSocialProof({ name: o.name, city: o.city, qty: o.qty, visible: true });
       hideTimer = setTimeout(
         () => setSocialProof((p) => ({ ...p, visible: false })),
         4500
       );
     };
-    const first = setTimeout(show, 2500);
+    const first = setTimeout(show, 2000);
     const cycle = setInterval(show, 8000);
     return () => {
       clearTimeout(first);
       clearTimeout(hideTimer);
       clearInterval(cycle);
     };
-  }, []);
+  }, [recentOrders]);
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity + testQuantity;
   const countryCodes = [
