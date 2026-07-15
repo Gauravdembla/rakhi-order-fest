@@ -69,7 +69,7 @@ const Index = () => {
   const [processing, setProcessing] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<"items" | "details">("items");
 
-  const totalQuantity = rakhi1Quantity + rakhi2Quantity;
+  const totalQuantity = rakhi1Quantity + rakhi2Quantity + testQuantity;
   const countryCodes = [
     { code: "+91", label: "🇮🇳 +91" },
     { code: "+1", label: "🇺🇸 +1" },
@@ -83,17 +83,15 @@ const Index = () => {
   ];
   
   const getPricing = (quantity: number) => {
-    const prices = { 
-      1: 199, 2: 299, 3: 399, 4: 499,
-      5: 649, 6: 749, 7: 849, 8: 949,
-      9: 1099, 10: 1199, 11: 1299, 12: 1349
+    const prices: Record<number, number> = {
+      1: 299, 2: 499, 3: 699, 4: 899, 5: 1099,
+      6: 1299, 7: 1499, 8: 1699, 9: 1899, 10: 1999,
     };
     return prices[quantity as keyof typeof prices] || 0;
   };
 
-  const grandTotalItems = totalQuantity + testQuantity;
-  const totalAmount =
-    (totalQuantity > 0 ? getPricing(totalQuantity) : 0) + testQuantity * 50;
+  const grandTotalItems = totalQuantity;
+  const totalAmount = totalQuantity > 0 ? getPricing(totalQuantity) : 0;
 
   const rakhiImages = [
     threeRakhisBanner.url, // 1. Hero overview of all 3 rakhis
@@ -224,11 +222,10 @@ const Index = () => {
     return quantity <= 0;
   };
   const getMaxSelectableQuantity = (type: "rakhi1" | "rakhi2") => {
-    if (type === "rakhi1") {
-      return isSoldOut(inventory.chakra) ? 0 : Math.min(12, getAvailableQuantity(inventory.chakra));
-    } else {
-      return isSoldOut(inventory.prosperity) ? 0 : Math.min(12, getAvailableQuantity(inventory.prosperity));
-    }
+    // Display-only inventory of 50 per rakhi; cap total order at 10.
+    const remaining = Math.max(0, 10 - totalQuantity);
+    if (type === "rakhi1") return rakhi1Quantity + remaining;
+    return rakhi2Quantity + remaining;
   };
 
 
@@ -237,8 +234,8 @@ const Index = () => {
       setError("Please select at least 1 item to proceed.");
       return false;
     }
-    if (totalQuantity > 12) {
-      setError("Maximum 12 rakhis can be ordered in total.");
+    if (totalQuantity > 10) {
+      setError("Maximum 10 rakhis can be ordered in total.");
       return false;
     }
     setError("");
