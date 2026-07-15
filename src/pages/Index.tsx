@@ -567,6 +567,8 @@ const Index = () => {
                     </button>
                   </div>
                 </div>
+                </>
+                )}
 
                 {/* Order Summary */}
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
@@ -604,22 +606,41 @@ const Index = () => {
                   </Alert>
                 )}
 
-                {/* Buy Button */}
-                <Button 
-                  onClick={handleBuyNow}
-                  disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
-                  className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
-                >
-                  {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
-                </Button>
+                {/* Primary Action Button */}
+                {checkoutStep === "items" ? (
+                  <Button
+                    onClick={() => {
+                      if (!validateForm()) return;
+                      setCheckoutStep("details");
+                    }}
+                    disabled={grandTotalItems < 1 || totalQuantity > 12}
+                    className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
+                  >
+                    Continue to details →
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleBuyNow}
+                    disabled={grandTotalItems < 1 || totalQuantity > 12 || processing}
+                    className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
+                  >
+                    {processing ? "Processing..." : `Proceed to pay ₹${totalAmount}`}
+                  </Button>
+                )}
 
-                {/* Back Button */}
-                <Button 
-                  onClick={() => setCurrentSlide(0)}
+                {/* Secondary Back Button */}
+                <Button
+                  onClick={() => {
+                    if (checkoutStep === "details") {
+                      setCheckoutStep("items");
+                    } else {
+                      setCurrentSlide(0);
+                    }
+                  }}
                   variant="outline"
                   className="w-full h-10 text-sm font-medium"
                 >
-                  ← Back to Product Details
+                  {checkoutStep === "details" ? "← Back to items" : "← Back to Product Details"}
                 </Button>
 
                 {/* Info Message */}
