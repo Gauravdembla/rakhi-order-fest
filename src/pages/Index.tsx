@@ -10,7 +10,7 @@ import { z } from "zod";
 import { toast } from "@/hooks/use-toast";
 import {
   ensureRazorpayScript,
-  createPaymentSession,
+  createPaymentSessionWithConflictRecovery,
   openRazorpayCheckout,
 } from "@/services/razorpayService";
 
@@ -31,6 +31,7 @@ const Index = () => {
   const [city, setCity] = useState("");
   const [pincode, setPincode] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<"items" | "details">("items");
 
   const totalQuantity = rakhi1Quantity + rakhi2Quantity;
   const countryCodes = [
@@ -266,16 +267,23 @@ const Index = () => {
         pincode: parsed.data.pincode,
       };
 
-      const session = await createPaymentSession(config);
+      const { session, effectiveConfig } =
+        await createPaymentSessionWithConflictRecovery(config);
       if (!session.ok) {
-        setError(session.err || "Could not start payment. Please try again.");
+        const conflict =
+          session.status === 409 || /conflict/i.test(session.body || "");
+        setError(
+          conflict
+            ? "We found an existing account with different contact details. Please use the email or phone you originally registered with."
+            : session.err || "Could not start payment. Please try again.",
+        );
         setProcessing(false);
         return;
       }
 
       openRazorpayCheckout(
         session,
-        config,
+        effectiveConfig,
         (response) => {
           setProcessing(false);
           toast({
@@ -292,6 +300,7 @@ const Index = () => {
           setAddress2("");
           setCity("");
           setPincode("");
+          setCheckoutStep("items");
         },
         (err) => {
           setProcessing(false);
