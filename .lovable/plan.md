@@ -1,45 +1,77 @@
-# Also send draft (autosaved) orders to the Pabbly webhook
+# Admin backend + Razorpay success API
 
-## What's actually wrong
+## 1. Admin login (email + password + 2FA)
 
-The webhook `notify-order-webhook` (which forwards rows to your Pabbly → Google Sheet) is fired **only when the user clicks "Proceed to pay"**. It is NOT fired by the new autosave that saves drafts to the database.
+- New protected route `/admin` in the app.
+- Auth uses Lovable Cloud email/password. I'll pre-create ONE admin account and share the credentials with you in chat after creation.
+- On first sign-in, you'll be prompted to enrol **TOTP 2FA** (scan a QR with Google Authenticator / Authy). After that, every future sign-in requires the 6-digit code.
+- A tiny `admin_users` table gates who can access `/admin` — even if someone else signs up on your project, they can't see this page.
 
-Result:
-- Users who click Proceed to pay → in DB **and** in your Pabbly sheet.
-- Users who fill the form but never click Proceed to pay → in DB as `draft`, **not** in your Pabbly sheet.
+Suggested admin email: `admin@angelsonearthhub.com` (or tell me the email you want; I'll use whatever you say).
 
-That is exactly why `krishna.verticaleye@gmail.com` is missing from your sheet even though her name, phone, address, and cart are all in the database.
+## 2. Admin dashboard (`/admin`)
 
-Separately: `janvigupta48480@gmail.com` clicked Proceed to pay, so a webhook *was* fired for her. If she's still missing from the sheet, that is either a Pabbly delivery failure or a filter in Pabbly. I'll pull the edge-function logs for her `client_order_id` to confirm which — but that's an investigation step, not a code change.
+Single page with:
 
-## What I'll change
+- **Orders table** — newest first, columns: date, name, email, phone, city, cart (Chakra / Prosperity / Ho'oponopono / total), amount, status (`draft` / `pending` / `success`), Razorpay payment id.
+- **Filters** — status, search by name / email / phone / client_order_id, date range.
+- **Row actions**
+  - `Resend to Pabbly` — re-fires `notify-order-webhook` for that row (event: `manual_resend`). Useful when a row didn't make it into your sheet.
+  - `Mark as success` — manual override.
+  - `Copy client_order_id`.
+- **Stats strip** — counts for today: drafts, pendings, successes, revenue.
+- CSV export of the current filtered view.
 
-### 1. `src/pages/Index.tsx` — autosave effect also calls the webhook
+## 3. Razorpay success → match API
 
-The existing debounced autosave effect (that writes `status: 'draft'` to `record-order`) will additionally fire `notify-order-webhook` with the same payload, using:
+New public edge function **`razorpay-payment-match`** (POST, no JWT).
 
+Request body (flexible — send whatever you have from Razorpay):
+```json
+{
+  "email": "buyer@example.com",
+  "phone": "9871324442",
+  "client_order_id": "optional-if-you-have-it",
+  "razorpay_payment_id": "pay_XXX",
+  "razorpay_order_id": "order_XXX",
+  "razorpay_signature": "optional",
+  "amount": 599,
+  "raw": { "...any razorpay payload..." }
+}
 ```
-event: "draft_saved"
-```
 
-Same debounce (800ms), same gating (name entered AND email or 10-digit phone), same `client_order_id`. So every meaningful keystroke pushes the latest snapshot to Pabbly. If the user later clicks Proceed to pay, the existing `event: "checkout_initiated"` webhook still fires — the sheet will just have a newer row overwriting/appending the same `client_order_id`.
+Matching (OR — any one is enough, in this priority):
+1. `client_order_id` exact match, else
+2. `email` (case-insensitive) match, else
+3. `phone` (bare digits, last 10) match.
 
-### 2. `supabase/functions/notify-order-webhook/index.ts` — no code change required
+If multiple candidates, pick the **most recent non-success** row (prefer `pending` over `draft`).
 
-It already forwards whatever payload it receives. But I'll add the `event` field to the top-level enrichment so your Pabbly workflow can branch on `draft_saved` vs `checkout_initiated` vs `payment_success` if you want to (already the case — no change needed).
+Behaviour:
+- Match found → update that row: `status = success`, fill Razorpay ids, merge `raw` into `raw_payload`. Return `{ matched: true, order_id, client_order_id }`.
+- No match → **insert a new row** with `status = success` and whatever fields you sent, `client_order_id = "rzp_<payment_id>"` so it's still captured. Return `{ matched: false, inserted: true }`.
+- Also fires `notify-order-webhook` with `event: "payment_success"` so your Pabbly sheet updates too.
 
-### 3. Investigation step (no code)
+Auth: protected by a shared secret header `x-webhook-secret` — I'll generate it and show you the value to paste into Razorpay's webhook / your Zapier / Pabbly step. Without that header the endpoint returns 401.
 
-Pull edge-function logs for `notify-order-webhook` around 15:29 UTC to confirm whether janvi's webhook call actually succeeded to Pabbly, or whether Pabbly rejected it. I'll report the finding so you know whether the sheet-side needs adjusting too.
+You'll get the exact URL after deploy, in this form:
+`https://<project>.functions.supabase.co/razorpay-payment-match`
 
-## What you'll see afterward
+## 4. Files touched
 
-Every visitor who enters name + (email or phone) sends a row to your Pabbly sheet within ~1 second of typing — even if they never click Proceed to pay. The row updates as they keep typing. On Proceed to pay you also get the existing `checkout_initiated` event, and on payment success the existing success event.
-
-## Files touched
-- `src/pages/Index.tsx` — extend the autosave `useEffect` to also invoke `notify-order-webhook`.
-- (no change to the two edge functions)
+- `supabase/migrations/…` — `admin_users` table + RLS + grants; enable MFA in auth config.
+- `supabase/functions/razorpay-payment-match/index.ts` — new.
+- `supabase/functions/notify-order-webhook/index.ts` — no change.
+- `src/pages/admin/Login.tsx` — new (email/pw + MFA challenge/enrol).
+- `src/pages/admin/Dashboard.tsx` — new (table, filters, actions, stats).
+- `src/App.tsx` — add `/admin` and `/admin/login` routes.
 
 ## Not in scope
-- Deduping rows inside your Pabbly workflow / Google Sheet — that's a Pabbly-side setting, best keyed off `client_order_id` so drafts and the final paid row update the same sheet row instead of creating new ones.
-- Users who pay via a shared Razorpay link without ever visiting the site — still needs a separate Razorpay webhook receiver.
+- Multi-admin management UI (I'll just seed one account; more can be added later).
+- Editing customer details from the admin.
+
+---
+
+**Two quick confirmations before I build:**
+1. Admin email to use? (default: `admin@angelsonearthhub.com`)
+2. OK for me to auto-generate the initial password + webhook secret and show them to you here?
