@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.record-order]
 verify_jwt = false
+
+[functions.razorpay-payment-match]
+verify_jwt = false
