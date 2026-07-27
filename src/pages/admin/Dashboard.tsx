@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { RefreshCw, Send, CheckCircle2, Copy, Download, LogOut } from "lucide-react";
+import { RefreshCw, Send, CheckCircle2, Copy, Download, LogOut, Key, Plus, Trash2 } from "lucide-react";
 
 type Order = {
   id: string;
@@ -34,6 +34,16 @@ type Order = {
 };
 
 const PROJECT_URL = "https://pmwnxcyltqbdziwufwxs.supabase.co";
+const WEBHOOK_URL = `${PROJECT_URL}/functions/v1/razorpay-payment-match`;
+
+type WebhookKey = {
+  id: string;
+  name: string;
+  secret: string;
+  created_at: string;
+  last_used_at: string | null;
+  revoked_at: string | null;
+};
 
 export default function AdminDashboard() {
   const nav = useNavigate();
@@ -42,6 +52,9 @@ export default function AdminDashboard() {
   const [status, setStatus] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [keys, setKeys] = useState<WebhookKey[]>([]);
+  const [newKeyName, setNewKeyName] = useState("");
+  const [justCreated, setJustCreated] = useState<WebhookKey | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -49,7 +62,7 @@ export default function AdminDashboard() {
       if (!data.session) { nav("/admin/login"); return; }
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2") { nav("/admin/login"); return; }
-      await load();
+      await Promise.all([load(), loadKeys()]);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -70,6 +83,52 @@ export default function AdminDashboard() {
       return;
     }
     setOrders((data ?? []) as Order[]);
+  }
+
+  async function loadKeys() {
+    const { data, error } = await supabase
+      .from("webhook_keys")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) { toast.error(error.message); return; }
+    setKeys((data ?? []) as WebhookKey[]);
+  }
+
+  function generateSecret() {
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    return "whk_" + Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function createKey() {
+    const name = newKeyName.trim() || `Key ${new Date().toLocaleString("en-IN")}`;
+    const secret = generateSecret();
+    const { data: sess } = await supabase.auth.getUser();
+    const { data, error } = await supabase.from("webhook_keys")
+      .insert({ name, secret, created_by: sess.user?.id })
+      .select().single();
+    if (error) { toast.error(error.message); return; }
+    setJustCreated(data as WebhookKey);
+    setNewKeyName("");
+    loadKeys();
+    toast.success("API key generated. Copy it now — it won't be shown again in full.");
+  }
+
+  async function revokeKey(k: WebhookKey) {
+    if (!confirm(`Revoke "${k.name}"? Requests using it will start failing.`)) return;
+    const { error } = await supabase.from("webhook_keys")
+      .update({ revoked_at: new Date().toISOString() }).eq("id", k.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Key revoked.");
+    loadKeys();
+  }
+
+  async function deleteKey(k: WebhookKey) {
+    if (!confirm(`Delete "${k.name}" permanently?`)) return;
+    const { error } = await supabase.from("webhook_keys").delete().eq("id", k.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Key deleted.");
+    loadKeys();
   }
 
   async function signOut() {
@@ -248,6 +307,88 @@ export default function AdminDashboard() {
                         )}
                         <Button size="sm" variant="ghost" onClick={() => copy(o.client_order_id)} title="Copy order id">
                           <Copy className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+
+        <Card className="p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <Key className="w-4 h-4" />
+            <h2 className="font-semibold">Payment webhook API</h2>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="text-muted-foreground">POST endpoint (send Razorpay success events here):</div>
+            <div className="flex gap-2 items-center flex-wrap">
+              <code className="px-2 py-1 bg-muted rounded text-xs break-all flex-1 min-w-0">{WEBHOOK_URL}</code>
+              <Button size="sm" variant="outline" onClick={() => copy(WEBHOOK_URL)}>
+                <Copy className="w-3.5 h-3.5 mr-1" />Copy URL
+              </Button>
+            </div>
+            <div className="text-muted-foreground mt-3">
+              Send the API key in the <code className="text-xs">x-webhook-secret</code> header.
+            </div>
+          </div>
+
+          <div className="flex gap-2 flex-wrap items-center pt-2 border-t">
+            <Input
+              placeholder="Key name (e.g. Razorpay live)"
+              value={newKeyName}
+              onChange={(e) => setNewKeyName(e.target.value)}
+              className="max-w-xs"
+            />
+            <Button size="sm" onClick={createKey}><Plus className="w-4 h-4 mr-1" />Generate new API key</Button>
+          </div>
+
+          {justCreated && (
+            <div className="p-3 rounded-md border border-primary/40 bg-primary/5 space-y-2">
+              <div className="text-sm font-medium">New key created — copy it now:</div>
+              <div className="flex gap-2 items-center flex-wrap">
+                <code className="px-2 py-1 bg-background rounded text-xs break-all flex-1 min-w-0">{justCreated.secret}</code>
+                <Button size="sm" variant="outline" onClick={() => copy(justCreated.secret)}>
+                  <Copy className="w-3.5 h-3.5 mr-1" />Copy
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setJustCreated(null)}>Dismiss</Button>
+              </div>
+            </div>
+          )}
+
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Secret</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Last used</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {keys.length === 0 ? (
+                  <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground text-sm">No API keys yet — generate one above.</TableCell></TableRow>
+                ) : keys.map((k) => (
+                  <TableRow key={k.id}>
+                    <TableCell className="font-medium">{k.name}</TableCell>
+                    <TableCell className="text-xs font-mono">{k.secret.slice(0, 8)}…{k.secret.slice(-4)}</TableCell>
+                    <TableCell className="text-xs">{new Date(k.created_at).toLocaleString("en-IN")}</TableCell>
+                    <TableCell className="text-xs">{k.last_used_at ? new Date(k.last_used_at).toLocaleString("en-IN") : "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant={k.revoked_at ? "outline" : "default"}>{k.revoked_at ? "revoked" : "active"}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="inline-flex gap-1">
+                        {!k.revoked_at && (
+                          <Button size="sm" variant="outline" onClick={() => revokeKey(k)} title="Revoke">Revoke</Button>
+                        )}
+                        <Button size="sm" variant="ghost" onClick={() => deleteKey(k)} title="Delete">
+                          <Trash2 className="w-3.5 h-3.5" />
                         </Button>
                       </div>
                     </TableCell>
