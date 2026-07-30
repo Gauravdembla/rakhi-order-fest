@@ -18,16 +18,19 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          role: string
           user_id: string
         }
         Insert: {
           created_at?: string
           email: string
+          role?: string
           user_id: string
         }
         Update: {
           created_at?: string
           email?: string
+          role?: string
           user_id?: string
         }
         Relationships: []
@@ -37,14 +40,18 @@ export type Database = {
           address1: string | null
           address2: string | null
           amount: number
+          awb_number: string | null
           chakra_qty: number
           city: string | null
           client_order_id: string
+          courier: string | null
           created_at: string
           currency: string
           customer_email: string
           customer_name: string
           customer_phone: string
+          dispatch_status: string
+          dispatched_at: string | null
           fan_id: string | null
           hooponopono_qty: number
           id: string
@@ -61,14 +68,18 @@ export type Database = {
           address1?: string | null
           address2?: string | null
           amount: number
+          awb_number?: string | null
           chakra_qty?: number
           city?: string | null
           client_order_id: string
+          courier?: string | null
           created_at?: string
           currency?: string
           customer_email: string
           customer_name: string
           customer_phone: string
+          dispatch_status?: string
+          dispatched_at?: string | null
           fan_id?: string | null
           hooponopono_qty?: number
           id?: string
@@ -85,14 +96,18 @@ export type Database = {
           address1?: string | null
           address2?: string | null
           amount?: number
+          awb_number?: string | null
           chakra_qty?: number
           city?: string | null
           client_order_id?: string
+          courier?: string | null
           created_at?: string
           currency?: string
           customer_email?: string
           customer_name?: string
           customer_phone?: string
+          dispatch_status?: string
+          dispatched_at?: string | null
           fan_id?: string | null
           hooponopono_qty?: number
           id?: string
@@ -143,6 +158,7 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_owner: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
