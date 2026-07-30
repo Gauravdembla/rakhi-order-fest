@@ -7,8 +7,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { RefreshCw, Send, CheckCircle2, Copy, Download, LogOut, Key, Plus, Trash2 } from "lucide-react";
+import { RefreshCw, Send, CheckCircle2, Copy, Download, LogOut, Key, Plus, Trash2, Truck, Users, Lock } from "lucide-react";
 
 type Order = {
   id: string;
@@ -27,6 +29,10 @@ type Order = {
   amount: number;
   currency: string;
   status: string;
+  dispatch_status: string;
+  awb_number: string | null;
+  courier: string | null;
+  dispatched_at: string | null;
   razorpay_payment_id: string | null;
   razorpay_order_id: string | null;
   created_at: string;
@@ -45,6 +51,9 @@ type WebhookKey = {
   revoked_at: string | null;
 };
 
+type Member = { user_id: string; email: string; role: string; created_at: string };
+const FN = (name: string) => `${PROJECT_URL}/functions/v1/${name}`;
+
 export default function AdminDashboard() {
   const nav = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -55,6 +64,15 @@ export default function AdminDashboard() {
   const [keys, setKeys] = useState<WebhookKey[]>([]);
   const [newKeyName, setNewKeyName] = useState("");
   const [justCreated, setJustCreated] = useState<WebhookKey | null>(null);
+  const [role, setRole] = useState<string>("team");
+  const [dispatchFilter, setDispatchFilter] = useState<string>("all");
+  const [dispatchOrder, setDispatchOrder] = useState<Order | null>(null);
+  const [awb, setAwb] = useState("");
+  const [courier, setCourier] = useState("");
+  const [members, setMembers] = useState<Member[]>([]);
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [memberCreds, setMemberCreds] = useState<{ email: string; password: string } | null>(null);
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -62,10 +80,100 @@ export default function AdminDashboard() {
       if (!data.session) { nav("/admin/login"); return; }
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2") { nav("/admin/login"); return; }
-      await Promise.all([load(), loadKeys()]);
+      const { data: me } = await supabase
+        .from("admin_users").select("role").eq("user_id", data.session.user.id).maybeSingle();
+      const myRole = (me as any)?.role ?? "team";
+      setRole(myRole);
+      await load();
+      if (myRole === "owner") await Promise.all([loadKeys(), loadMembers()]);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function callTeam(payload: any) {
+    const { data: sess } = await supabase.auth.getSession();
+    const res = await fetch(FN("admin-team"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sess.session?.access_token}` },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  }
+
+  async function loadMembers() {
+    const body = await callTeam({ action: "list" });
+    if (body?.ok) setMembers(body.members as Member[]);
+  }
+
+  async function addMember() {
+    const email = newMemberEmail.trim();
+    if (!email) { toast.error("Enter an email"); return; }
+    const body = await callTeam({ action: "create", email, role: "team" });
+    if (!body?.ok) { toast.error(body?.error ?? "Failed"); return; }
+    setMemberCreds({ email: body.email, password: body.password });
+    setNewMemberEmail("");
+    loadMembers();
+    toast.success("Team member created. Copy the password now.");
+  }
+
+  async function resetMemberPassword(m: Member) {
+    if (!confirm(`Generate a new password for ${m.email}?`)) return;
+    const body = await callTeam({ action: "reset_password", user_id: m.user_id });
+    if (!body?.ok) { toast.error(body?.error ?? "Failed"); return; }
+    setMemberCreds({ email: m.email, password: body.password });
+    toast.success("New password generated.");
+  }
+
+  async function removeMember(m: Member) {
+    if (!confirm(`Remove ${m.email}'s admin access?`)) return;
+    const body = await callTeam({ action: "remove", user_id: m.user_id });
+    if (!body?.ok) { toast.error(body?.error ?? "Failed"); return; }
+    toast.success("Access removed.");
+    loadMembers();
+  }
+
+  async function changeMyPassword() {
+    if (newPassword.length < 8) { toast.error("Password must be at least 8 characters."); return; }
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) { toast.error(error.message); return; }
+    setNewPassword("");
+    toast.success("Password updated.");
+  }
+
+  function openDispatch(o: Order) {
+    setDispatchOrder(o);
+    setAwb(o.awb_number ?? "");
+    setCourier(o.courier ?? "");
+  }
+
+  async function saveDispatch() {
+    if (!dispatchOrder) return;
+    if (!awb.trim()) { toast.error("AWB number is required."); return; }
+    setBusyId(dispatchOrder.id);
+    const { error } = await supabase.from("orders").update({
+      dispatch_status: "dispatched",
+      awb_number: awb.trim(),
+      courier: courier.trim() || null,
+      dispatched_at: new Date().toISOString(),
+    }).eq("id", dispatchOrder.id);
+    setBusyId(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Marked as dispatched.");
+    setDispatchOrder(null);
+    load();
+  }
+
+  async function undoDispatch(o: Order) {
+    if (!confirm("Mark this order as not dispatched?")) return;
+    setBusyId(o.id);
+    const { error } = await supabase.from("orders").update({
+      dispatch_status: "not_dispatched", awb_number: null, courier: null, dispatched_at: null,
+    }).eq("id", o.id);
+    setBusyId(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Dispatch cleared.");
+    load();
+  }
 
   async function load() {
     setLoading(true);
@@ -140,13 +248,14 @@ export default function AdminDashboard() {
     const q = search.trim().toLowerCase();
     return orders.filter((o) => {
       if (status !== "all" && o.status !== status) return false;
+      if (dispatchFilter !== "all" && (o.dispatch_status ?? "not_dispatched") !== dispatchFilter) return false;
       if (!q) return true;
       return [
-        o.customer_name, o.customer_email, o.customer_phone,
+        o.customer_name, o.customer_email, o.customer_phone, o.awb_number,
         o.client_order_id, o.razorpay_payment_id, o.city,
       ].some((v) => (v ?? "").toString().toLowerCase().includes(q));
     });
-  }, [orders, status, search]);
+  }, [orders, status, dispatchFilter, search]);
 
   const todayStats = useMemo(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
