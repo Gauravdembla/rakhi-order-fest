@@ -100,6 +100,7 @@ export default function AdminLogin() {
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
+    if (bootstrapped) { toast.error("Admin account already exists."); setMode("signin"); return; }
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email, password,
