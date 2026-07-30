@@ -13,6 +13,3 @@ verify_jwt = false
 verify_jwt = false
 [functions.admin-team]
 verify_jwt = false
-
-[functions.seed-team]
-verify_jwt = false
