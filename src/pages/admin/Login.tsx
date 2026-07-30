@@ -19,9 +19,17 @@ export default function AdminLogin() {
   const [challengeId, setChallengeId] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
+  const [bootstrapped, setBootstrapped] = useState(true);
 
   useEffect(() => {
     (async () => {
+      try {
+        const res = await fetch(`https://pmwnxcyltqbdziwufwxs.supabase.co/functions/v1/admin-bootstrap`);
+        const body = await res.json();
+        setBootstrapped(Boolean(body?.bootstrapped));
+      } catch {
+        setBootstrapped(true);
+      }
       const { data } = await supabase.auth.getSession();
       if (data.session) await routeSignedIn();
     })();
@@ -144,9 +152,11 @@ export default function AdminLogin() {
             <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             <Button type="submit" className="w-full" disabled={loading}>{loading ? "Signing in..." : "Sign in"}</Button>
-            <button type="button" className="text-xs text-muted-foreground underline" onClick={() => setMode("signup")}>
-              First time? Create admin account
-            </button>
+            {!bootstrapped && (
+              <button type="button" className="text-xs text-muted-foreground underline" onClick={() => setMode("signup")}>
+                First time setup? Create the admin account
+              </button>
+            )}
           </form>
         )}
 
