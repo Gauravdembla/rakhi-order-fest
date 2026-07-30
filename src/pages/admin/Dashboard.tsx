@@ -177,20 +177,27 @@ export default function AdminDashboard() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(500);
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      if (error.message.toLowerCase().includes("permission") || error.message.toLowerCase().includes("rls")) {
-        nav("/admin/login");
+    const pageSize = 1000;
+    const all: Order[] = [];
+    for (let page = 0; ; page++) {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .range(page * pageSize, page * pageSize + pageSize - 1);
+      if (error) {
+        setLoading(false);
+        toast.error(error.message);
+        if (error.message.toLowerCase().includes("permission") || error.message.toLowerCase().includes("rls")) {
+          nav("/admin/login");
+        }
+        return;
       }
-      return;
+      all.push(...((data ?? []) as Order[]));
+      if (!data || data.length < pageSize) break;
     }
-    setOrders((data ?? []) as Order[]);
+    setLoading(false);
+    setOrders(all);
   }
 
   async function loadKeys() {
