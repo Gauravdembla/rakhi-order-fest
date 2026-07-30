@@ -454,6 +454,74 @@ export default function AdminDashboard() {
           </div>
         </Card>
 
+        <Card className="p-4 space-y-4 max-w-md">
+          <div className="flex items-center gap-2">
+            <Lock className="w-4 h-4" />
+            <h2 className="font-semibold">Change my password</h2>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Input type="password" placeholder="New password (min 8 chars)" value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)} className="max-w-xs" />
+            <Button size="sm" onClick={changeMyPassword}>Update</Button>
+          </div>
+        </Card>
+
+        {role === "owner" && (
+        <Card className="p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <h2 className="font-semibold">Team members</h2>
+          </div>
+          <div className="flex gap-2 flex-wrap items-center">
+            <Input placeholder="team.member@example.com" value={newMemberEmail}
+              onChange={(e) => setNewMemberEmail(e.target.value)} className="max-w-xs" />
+            <Button size="sm" onClick={addMember}><Plus className="w-4 h-4 mr-1" />Add team member</Button>
+          </div>
+          {memberCreds && (
+            <div className="p-3 rounded-md border border-primary/40 bg-primary/5 space-y-2">
+              <div className="text-sm font-medium">Credentials for {memberCreds.email} — copy now:</div>
+              <div className="flex gap-2 items-center flex-wrap">
+                <code className="px-2 py-1 bg-background rounded text-xs break-all flex-1 min-w-0">{memberCreds.password}</code>
+                <Button size="sm" variant="outline" onClick={() => copy(memberCreds.password)}>
+                  <Copy className="w-3.5 h-3.5 mr-1" />Copy
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setMemberCreds(null)}>Dismiss</Button>
+              </div>
+            </div>
+          )}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Added</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {members.map((m) => (
+                  <TableRow key={m.user_id}>
+                    <TableCell className="text-sm">{m.email}</TableCell>
+                    <TableCell><Badge variant={m.role === "owner" ? "default" : "secondary"}>{m.role}</Badge></TableCell>
+                    <TableCell className="text-xs">{new Date(m.created_at).toLocaleDateString("en-IN")}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="inline-flex gap-1">
+                        <Button size="sm" variant="outline" onClick={() => resetMemberPassword(m)}>Reset password</Button>
+                        {m.role !== "owner" && (
+                          <Button size="sm" variant="ghost" onClick={() => removeMember(m)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+        )}
+
+        {role === "owner" && (
         <Card className="p-4 space-y-4">
           <div className="flex items-center gap-2">
             <Key className="w-4 h-4" />
@@ -535,7 +603,33 @@ export default function AdminDashboard() {
             </Table>
           </div>
         </Card>
+        )}
       </div>
+
+      <Dialog open={!!dispatchOrder} onOpenChange={(o) => !o && setDispatchOrder(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mark dispatched</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="text-sm text-muted-foreground">
+              {dispatchOrder?.customer_name} · ₹{Number(dispatchOrder?.amount ?? 0).toLocaleString("en-IN")}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="awb">AWB / tracking number</Label>
+              <Input id="awb" value={awb} onChange={(e) => setAwb(e.target.value)} placeholder="e.g. 1234567890" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="courier">Courier (optional)</Label>
+              <Input id="courier" value={courier} onChange={(e) => setCourier(e.target.value)} placeholder="e.g. Delhivery, BlueDart" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDispatchOrder(null)}>Cancel</Button>
+            <Button onClick={saveDispatch}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
