@@ -11,6 +11,13 @@ Deno.serve(async (req) => {
   const json = (b: unknown, s = 200) =>
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
+  // Public status check: is an admin already set up?
+  if (req.method === 'GET') {
+    const { count, error } = await admin.from('admin_users').select('*', { count: 'exact', head: true });
+    if (error) return json({ error: error.message }, 500);
+    return json({ bootstrapped: (count ?? 0) > 0 });
+  }
+
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
   const authHeader = req.headers.get('Authorization') ?? '';
