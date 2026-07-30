@@ -307,7 +307,7 @@ export default function AdminDashboard() {
     const cols = [
       "created_at","status","client_order_id","customer_name","customer_email","customer_phone",
       "city","pincode","chakra_qty","prosperity_qty","hooponopono_qty","total_qty","amount",
-      "razorpay_payment_id","razorpay_order_id",
+      "razorpay_payment_id","razorpay_order_id","dispatch_status","awb_number","courier","dispatched_at",
     ];
     const esc = (v: any) => {
       const s = v == null ? "" : String(v);
@@ -359,6 +359,14 @@ export default function AdminDashboard() {
                 <SelectItem value="success">Success</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={dispatchFilter} onValueChange={setDispatchFilter}>
+              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All dispatch</SelectItem>
+                <SelectItem value="not_dispatched">Not dispatched</SelectItem>
+                <SelectItem value="dispatched">Dispatched</SelectItem>
+              </SelectContent>
+            </Select>
             <div className="text-sm text-muted-foreground self-center ml-auto">
               {filtered.length} of {orders.length}
             </div>
@@ -375,15 +383,16 @@ export default function AdminDashboard() {
                   <TableHead>Cart</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Dispatch</TableHead>
                   <TableHead>Razorpay</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Loading…</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">Loading…</TableCell></TableRow>
                 ) : filtered.length === 0 ? (
-                  <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No orders</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">No orders</TableCell></TableRow>
                 ) : filtered.map((o) => (
                   <TableRow key={o.id}>
                     <TableCell className="text-xs whitespace-nowrap">{new Date(o.created_at).toLocaleString("en-IN")}</TableCell>
@@ -400,6 +409,15 @@ export default function AdminDashboard() {
                     <TableCell className="text-right whitespace-nowrap">₹{Number(o.amount).toLocaleString("en-IN")}</TableCell>
                     <TableCell><Badge variant={statusColor(o.status) as any}>{o.status}</Badge></TableCell>
                     <TableCell className="text-xs">
+                      {o.dispatch_status === "dispatched" ? (
+                        <div className="space-y-0.5">
+                          <Badge variant="default">dispatched</Badge>
+                          <div className="font-mono">{o.awb_number}</div>
+                          <div className="text-muted-foreground">{o.courier ?? "—"}</div>
+                        </div>
+                      ) : <Badge variant="outline">not dispatched</Badge>}
+                    </TableCell>
+                    <TableCell className="text-xs">
                       {o.razorpay_payment_id ? (
                         <button className="underline" onClick={() => copy(o.razorpay_payment_id!)}>{o.razorpay_payment_id.slice(0, 14)}…</button>
                       ) : <span className="text-muted-foreground">—</span>}
@@ -412,6 +430,16 @@ export default function AdminDashboard() {
                         {o.status !== "success" && (
                           <Button size="sm" variant="outline" disabled={busyId === o.id} onClick={() => markSuccess(o)} title="Mark as success">
                             <CheckCircle2 className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" disabled={busyId === o.id}
+                          onClick={() => o.dispatch_status === "dispatched" ? openDispatch(o) : openDispatch(o)}
+                          title={o.dispatch_status === "dispatched" ? "Edit AWB" : "Mark dispatched"}>
+                          <Truck className="w-3.5 h-3.5" />
+                        </Button>
+                        {o.dispatch_status === "dispatched" && (
+                          <Button size="sm" variant="ghost" disabled={busyId === o.id} onClick={() => undoDispatch(o)} title="Clear dispatch">
+                            <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         )}
                         <Button size="sm" variant="ghost" onClick={() => copy(o.client_order_id)} title="Copy order id">
