@@ -51,19 +51,7 @@ export default function AdminLogin() {
       }
     }
 
-    // No factor yet? Force enrolment
-    const { data: factors } = await supabase.auth.mfa.listFactors();
-    const verified = factors?.totp?.find((f) => f.status === "verified");
-    if (!verified) {
-      const { data: enrol, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "Admin TOTP" });
-      if (error) { toast.error(error.message); return; }
-      setFactorId(enrol.id);
-      setQr(enrol.totp.qr_code);
-      setSecret(enrol.totp.secret);
-      setMode("enrol");
-      return;
-    }
-
+    // 2FA is optional — only challenged above when a verified factor exists.
     await ensureAdminAndGo();
   }
 
