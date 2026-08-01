@@ -395,6 +395,15 @@ export default function AdminDashboard() {
                 <SelectItem value="dispatched">Dispatched</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={String(perPage)} onValueChange={(v) => setPerPage(Number(v))}>
+              <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="20">20 / page</SelectItem>
+                <SelectItem value="40">40 / page</SelectItem>
+                <SelectItem value="50">50 / page</SelectItem>
+                <SelectItem value="100">100 / page</SelectItem>
+              </SelectContent>
+            </Select>
             <div className="text-sm text-muted-foreground self-center ml-auto">
               {filtered.length} of {orders.length}
             </div>
@@ -421,7 +430,7 @@ export default function AdminDashboard() {
                   <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">Loading…</TableCell></TableRow>
                 ) : filtered.length === 0 ? (
                   <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">No orders</TableCell></TableRow>
-                ) : filtered.map((o) => (
+                ) : paged.map((o) => (
                   <TableRow key={o.id}>
                     <TableCell className="text-xs whitespace-nowrap">{new Date(o.created_at).toLocaleString("en-IN")}</TableCell>
                     <TableCell className="font-medium">{o.customer_name}</TableCell>
@@ -473,12 +482,40 @@ export default function AdminDashboard() {
                         <Button size="sm" variant="ghost" onClick={() => copy(o.client_order_id)} title="Copy order id">
                           <Copy className="w-3.5 h-3.5" />
                         </Button>
+                        <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive"
+                          disabled={busyId === o.id} onClick={() => deleteOrder(o)} title="Delete order">
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="text-sm text-muted-foreground">
+              {filtered.length === 0 ? "0" : `${(currentPage - 1) * perPage + 1}–${Math.min(currentPage * perPage, filtered.length)}`} of {filtered.length}
+            </div>
+            <div className="flex items-center gap-1 flex-wrap">
+              <Button size="sm" variant="outline" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+                .map((p, idx, arr) => (
+                  <span key={p} className="flex items-center gap-1">
+                    {idx > 0 && p - arr[idx - 1] > 1 && <span className="px-1 text-muted-foreground">…</span>}
+                    <Button size="sm" variant={p === currentPage ? "default" : "outline"} onClick={() => setPage(p)}>
+                      {p}
+                    </Button>
+                  </span>
+                ))}
+              <Button size="sm" variant="outline" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </Card>
 
