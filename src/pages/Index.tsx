@@ -473,6 +473,16 @@ const Index = () => {
     try {
       const clientOrderId = clientOrderIdRef.current;
 
+      // Human-readable product name describing the cart
+      const productName =
+        [
+          rakhi1Quantity ? `${rakhi1Quantity}x 7 Chakra Rakhi` : "",
+          rakhi2Quantity ? `${rakhi2Quantity}x Prosperity Rakhi` : "",
+          testQuantity ? `${testQuantity}x Ho'oponopono Rakhi` : "",
+        ]
+          .filter(Boolean)
+          .join(" + ") || "Rakhi Order";
+
       // Fire webhook to Pabbly (fire-and-forget) as soon as user proceeds to payment
       void supabase.functions.invoke("notify-order-webhook", {
         body: {
@@ -498,6 +508,7 @@ const Index = () => {
           amount,
           currency: "INR",
           checkout_url: checkoutUrl,
+          product_name: productName,
         },
       }).catch((e) => console.warn("[notify-order-webhook] failed:", e));
 
@@ -528,6 +539,8 @@ const Index = () => {
       redirectUrl.searchParams.set("email", parsed.data.email);
       redirectUrl.searchParams.set("phone", parsed.data.phone);
       redirectUrl.searchParams.set("amount", String(amount));
+      redirectUrl.searchParams.set("order_id", clientOrderId);
+      redirectUrl.searchParams.set("product_name", productName);
       window.location.href = redirectUrl.toString();
     } catch (e) {
       console.error("[handleBuyNow] error", e);

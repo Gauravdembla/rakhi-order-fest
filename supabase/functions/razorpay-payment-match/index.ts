@@ -44,7 +44,11 @@ Deno.serve(async (req) => {
 
   const email = String(body.email ?? '').trim().toLowerCase();
   const phone10 = last10(body.phone);
-  const clientOrderId = body.client_order_id ? String(body.client_order_id) : null;
+  const clientOrderId = body.client_order_id
+    ? String(body.client_order_id)
+    : body.order_id
+      ? String(body.order_id)
+      : null;
   const paymentId = body.razorpay_payment_id ? String(body.razorpay_payment_id) : null;
 
   // Find candidate by priority: client_order_id > email > phone
