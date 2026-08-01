@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { RefreshCw, Send, CheckCircle2, Copy, Download, LogOut, Key, Plus, Trash2, Truck, Users, Lock } from "lucide-react";
+import { RefreshCw, Send, CheckCircle2, Copy, Download, LogOut, Key, Plus, Trash2, Truck, Users, Lock, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 type Order = {
   id: string;
@@ -73,6 +73,8 @@ export default function AdminDashboard() {
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [memberCreds, setMemberCreds] = useState<{ email: string; password: string } | null>(null);
   const [newPassword, setNewPassword] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(20);
 
   useEffect(() => {
     (async () => {
@@ -172,6 +174,16 @@ export default function AdminDashboard() {
     setBusyId(null);
     if (error) { toast.error(error.message); return; }
     toast.success("Dispatch cleared.");
+    load();
+  }
+
+  async function deleteOrder(o: Order) {
+    if (!confirm(`Delete the order for ${o.customer_name} (₹${Number(o.amount).toLocaleString("en-IN")})? This cannot be undone.`)) return;
+    setBusyId(o.id);
+    const { error } = await supabase.from("orders").delete().eq("id", o.id);
+    setBusyId(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Order deleted.");
     load();
   }
 
