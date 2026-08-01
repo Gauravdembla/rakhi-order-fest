@@ -535,7 +535,7 @@ const Index = () => {
 
       // Redirect to Razorpay payment page, prefilling name / email / phone / amount
       const redirectUrl = new URL(checkoutUrl);
-      redirectUrl.searchParams.set("name", parsed.data.name);
+      redirectUrl.searchParams.set("full_name", parsed.data.name);
       redirectUrl.searchParams.set("email", parsed.data.email);
       redirectUrl.searchParams.set("phone", parsed.data.phone);
       redirectUrl.searchParams.set("amount", String(amount));
