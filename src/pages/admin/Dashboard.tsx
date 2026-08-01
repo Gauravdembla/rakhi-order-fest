@@ -276,6 +276,15 @@ export default function AdminDashboard() {
     });
   }, [orders, status, dispatchFilter, search]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const paged = useMemo(
+    () => filtered.slice((currentPage - 1) * perPage, currentPage * perPage),
+    [filtered, currentPage, perPage],
+  );
+
+  useEffect(() => { setPage(1); }, [status, dispatchFilter, search, perPage]);
+
   const todayStats = useMemo(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const isToday = (d: string) => new Date(d) >= today;
