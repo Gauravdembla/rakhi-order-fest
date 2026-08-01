@@ -20,21 +20,21 @@ Deno.serve(async (req) => {
 
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
-  const provided = req.headers.get('x-webhook-secret') ?? '';
-  let authorized = !!SECRET && provided === SECRET;
+  // Auth is OPTIONAL: a secret may still be sent (header or ?key=) and will be
+  // recorded, but requests without one are accepted.
+  const url = new URL(req.url);
+  const provided = req.headers.get('x-webhook-secret') ?? url.searchParams.get('key') ?? '';
   let usedKeyId: string | null = null;
-  if (!authorized && provided) {
+  if (provided && provided !== SECRET) {
     const { data: keyRow } = await supabase
       .from('webhook_keys')
       .select('id, revoked_at')
       .eq('secret', provided)
       .maybeSingle();
     if (keyRow && !keyRow.revoked_at) {
-      authorized = true;
       usedKeyId = keyRow.id;
     }
   }
-  if (!authorized) return json({ error: 'Unauthorized' }, 401);
   if (usedKeyId) {
     supabase.from('webhook_keys').update({ last_used_at: new Date().toISOString() }).eq('id', usedKeyId).then(() => {});
   }
