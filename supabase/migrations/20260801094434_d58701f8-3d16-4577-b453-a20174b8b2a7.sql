@@ -1,0 +1,1 @@
+DELETE FROM public.orders WHERE client_order_id = '__nonexistent_test__' OR razorpay_payment_id = 'pay_test_noauth' OR (customer_email = 'unknown@unknown' AND customer_name = 'Unknown' AND client_order_id LIKE 'rzp_1%');
